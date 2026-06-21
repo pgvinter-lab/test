@@ -10,6 +10,7 @@ description: >-
   Definition of Done, syncs results into the shared system of record (Git +
   .shared/), and shuts down with a final report. Honors the Shared AI Workspace
   Protocol in PROTOCOL.md.
+allowed-tools: Bash Read Write Edit AskUserQuestion WebSearch WebFetch
 ---
 
 # work-with-codex-to
@@ -28,18 +29,28 @@ Run autonomously between the start confirmation and completion; only stop for
 
 ## Phase 0 — Preflight (capability detection + scaffolding)
 
-1. **Detect backends.** Run, and record which exist:
+1. **Print the ENVIRONMENT REPORT and decide topology.** This is also the
+   self-test that tells us whether the loop can run here at all. Run the
+   bundled probe (or inline the same checks):
    ```bash
-   for c in codex gemini claude gh node python3 jq; do
-     printf "%-8s " "$c"; command -v "$c" || echo "(missing)"
-   done
+   bash "$(dirname "$0")/scripts/preflight.sh" 2>/dev/null || \
+   { echo "host: $(hostname)  os: $(uname -srm)  cwd: $(pwd)";
+     for c in codex gemini claude gh node python3 jq; do
+       printf "%-8s " "$c"; command -v "$c" || echo "(missing)"; done; }
    ```
-   - `codex` present → Codex available as a peer agent (CLI).
-   - `gemini` present → Gemini available for second opinions / research.
-   - Either missing → that backend is **degraded, not fatal**. Continue with
-     what's available; use Claude's own `WebSearch`/`WebFetch` (and a browser
-     CLI if one exists) as the web/Google fallback. State the degradation
-     plainly to the user in the final report.
+   Show the report to the user, then interpret:
+   - **`codex` present** → Codex is reachable as a peer agent (CLI). The loop
+     can run for real. Proceed.
+   - **`codex` missing** → this surface cannot reach Codex (you are in a cloud
+     environment isolated from the laptop, e.g. the Code tab or a Cowork cloud
+     VM). Do **not** silently fake it. Tell the user plainly and offer the
+     three real options before continuing:
+       1. Re-run from a surface that has local `codex` (e.g. Cowork if it runs
+          locally, or a local terminal Claude Code).
+       2. Install `codex` into this environment via a setup script and re-run.
+       3. Proceed **Claude-only** (no second agent) — degraded, stated as such.
+   - **`gemini` present** → available for second opinions / research; if
+     missing, fall back to Claude's `WebSearch`/`WebFetch`.
    - Confirm exact non-interactive flags before first use; versions differ:
      `codex exec --help` and `gemini --help`.
 
