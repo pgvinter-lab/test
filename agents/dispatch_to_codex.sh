@@ -44,13 +44,14 @@ REVIEW_DIR="$SHARED_DIR/review"
 LOG="$SHARED_DIR/log.jsonl"
 CODEX_EXEC_FLAGS="${CODEX_EXEC_FLAGS:---dangerously-bypass-approvals-and-sandbox}"
 
-TASK=""; PROMPT=""; NEXT_HINT="Code: review Codex output and decide the next task per the playbook."; DRYRUN="0"
+TASK=""; PROMPT=""; NEXT_HINT="Code: review Codex output and decide the next task per the playbook."; DRYRUN="0"; YES="0"
 while [ $# -gt 0 ]; do
   case "$1" in
     --task)    TASK="${2:-}"; shift 2;;
     --prompt)  PROMPT="${2:-}"; shift 2;;
     --next)    NEXT_HINT="${2:-}"; shift 2;;
     --dry-run) DRYRUN="1"; shift;;
+    --yes)     YES="1"; shift;;
     -h|--help) usage; exit 0;;
     *) echo "unknown arg: $1" >&2; usage; exit 2;;
   esac
@@ -88,15 +89,38 @@ fi
 
 command -v codex >/dev/null 2>&1 || { echo "ERROR: codex not found on PATH" >&2; exit 127; }
 
+# M5 fix: full-access Codex (no sandbox, no approvals) is an irreversible-capable
+# action. Enforce the gate in code, not just in the playbook: require explicit
+# confirmation unless --yes or BRIDGE_AUTOCONFIRM=1. Refuse to run unattended.
+if [ "$YES" != "1" ] && [ "${BRIDGE_AUTOCONFIRM:-0}" != "1" ]; then
+  if [ -e /dev/tty ]; then
+    printf 'Run Codex FULL-ACCESS (no sandbox) on %s, task %s? [y/N] ' "$REPO" "$TASK" >/dev/tty
+    read -r reply </dev/tty || reply=""
+    case "$reply" in y|Y|yes|YES) ;; *) echo "aborted (no confirmation; use --yes to skip)." >&2; exit 4;; esac
+  else
+    echo "ERROR: full-access Codex needs confirmation; pass --yes or set BRIDGE_AUTOCONFIRM=1." >&2
+    exit 4
+  fi
+fi
+
 # --- real run ---
 LASTMSG="$(mktemp)"
 printf '%s' "$PROMPT" | codex exec $CODEX_EXEC_FLAGS "${MODEL_ARGS[@]}" -C "$REPO" -o "$LASTMSG" - > "$REVIEW_ABS" 2>&1
 CRC=$?
-if [ "$CRC" -eq 0 ]; then KIND="result"; else KIND="error"; fi
+# B3 fix: do NOT equate exit-0 with a substantive result. An empty final message
+# on exit 0 must not signal a "result" (the playbook would read it as convergence).
+FINAL="$(head -c 480 "$LASTMSG" 2>/dev/null | tr '\n' ' ' | sed 's/  */ /g')"
+if [ "$CRC" -ne 0 ]; then
+  KIND="error"
+elif [ -n "$FINAL" ]; then
+  KIND="result"
+else
+  KIND="needs_input"   # exit 0 but no final message: disposition unclear, not a result
+fi
 
-SUMMARY="$(head -c 480 "$LASTMSG" 2>/dev/null | tr '\n' ' ' | sed 's/  */ /g')"
+SUMMARY="$FINAL"
 [ -z "$SUMMARY" ] && SUMMARY="$(tail -c 480 "$REVIEW_ABS" 2>/dev/null | tr '\n' ' ' | sed 's/  */ /g')"
-[ -z "$SUMMARY" ] && SUMMARY="Codex exec completed for $TASK (exit $CRC); see $REL"
+[ -z "$SUMMARY" ] && SUMMARY="Codex exec exit $CRC, no final message for $TASK; see $REL (review before treating as done)."
 rm -f "$LASTMSG"
 
 # Emit the event, pre-seed the codex cursor, and log - all JSON via Python (stdlib).

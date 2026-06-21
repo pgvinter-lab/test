@@ -132,10 +132,31 @@ rm -f "$MSGFILE"
 echo "committed: $(git -C "$REPO" rev-parse --short HEAD)  ($KIND -> cowork, task=$TASK)"
 
 if [ "$PUSH" = "1" ]; then
-  if git -C "$REPO" push origin HEAD; then
-    echo "pushed -> Cowork will pick this up on next sync."
+  # M2 fix: handle non-fast-forward by rebasing onto the remote and retrying,
+  # instead of warning and stranding the task locally.
+  BRANCH="$(git -C "$REPO" rev-parse --abbrev-ref HEAD)"
+  pushed=0
+  for attempt in 1 2 3; do
+    if git -C "$REPO" push origin HEAD 2>/dev/null; then pushed=1; break; fi
+    echo "push rejected (attempt $attempt) - rebasing onto origin/$BRANCH and retrying..." >&2
+    if ! git -C "$REPO" pull --rebase origin "$BRANCH" >/dev/null 2>&1; then
+      echo "ERROR: rebase failed (conflict?). Resolve, then: git -C \"$REPO\" push origin HEAD" >&2
+      exit 3
+    fi
+  done
+  if [ "$pushed" = "1" ]; then
+    echo "pushed (task=$TASK -> cowork)."
+    # B1 (half): nothing auto-wakes the cloud Cowork session - make the gap loud.
+    {
+      echo "============================================================"
+      echo "  MANUAL RELAY REQUIRED - nothing auto-wakes Cowork."
+      echo "  Tell the Cowork session to pull and read inbox.cowork.jsonl,"
+      echo "  or it will never see task $TASK."
+      echo "============================================================"
+    } >&2
   else
-    echo "WARN: push failed; commit is local and recoverable (retry: git -C \"$REPO\" push origin HEAD)" >&2
+    echo "ERROR: push still failing after retries; commit is local." >&2
+    echo "Manual recovery: git -C \"$REPO\" pull --rebase origin $BRANCH && git -C \"$REPO\" push origin HEAD" >&2
     exit 3
   fi
 else
