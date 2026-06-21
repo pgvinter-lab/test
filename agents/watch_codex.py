@@ -215,7 +215,12 @@ def run_once():
             except json.JSONDecodeError:
                 log("skip malformed line: %s" % raw[:80])
                 continue
-            if str(entry.get("actor", "")).strip().lower() != "codex":
+            actor = str(entry.get("actor", "")).strip().lower()
+            # F1 fix: accept "codex"; "cowork"/"claude" are the cowork watcher's
+            # job (skip quietly); anything else is a real drop - LOG it.
+            if actor != "codex":
+                if actor and actor not in ("cowork", "claude"):
+                    log("DROP: unrecognized actor=%r in inbox.code.jsonl; line=%s" % (actor, raw[:80]))
                 continue
             digest = hashlib.sha1(raw.encode("utf-8")).hexdigest()
             if digest in entries_seen:

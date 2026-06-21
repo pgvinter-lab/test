@@ -210,7 +210,14 @@ def run_once():
         except json.JSONDecodeError:
             log("skip malformed line: %s" % raw[:80])
             continue
-        if str(entry.get("actor", "")).strip().lower() != "cowork":
+        actor = str(entry.get("actor", "")).strip().lower()
+        # F1 fix: the Cowork/Claude surface finalizes as "cowork" OR "claude"
+        # (PROTOCOL/SKILL and the live log use "claude") - accept both. "codex"
+        # is the other watcher's job (skip quietly). Anything else is a real drop:
+        # LOG it instead of silently continuing, so losses are visible.
+        if actor not in ("cowork", "claude"):
+            if actor and actor != "codex":
+                log("DROP: unrecognized actor=%r in inbox.code.jsonl; line=%s" % (actor, raw[:80]))
             continue
         digest = hashlib.sha1(raw.encode("utf-8")).hexdigest()
         if digest in seen:
