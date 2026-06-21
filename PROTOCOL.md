@@ -90,20 +90,19 @@ Code  ←→ [git repo / .shared bus] ←→  Cowork  ←→ [Desktop Commander]
   transitively, through Cowork.
 
 ### Finalization push (the doorbell)
-When Cowork/Codex finish a task, the local executor MUST, as its last step:
+Every Cowork/Codex task MUST end by making Code aware. As the last step, the
+local executor:
 
-1. Write a **sanitized** result/handoff entry to `.shared/handoff/inbox.code.jsonl`
-   — enough for Code to orchestrate the next step, and no more:
-   `{ts, actor, task, status, did (high-level), flags_count, next_recommended, refs:[LOCAL paths]}`.
-2. Refresh a sanitized `.shared/state.md` (active task, holder, open items).
-3. `git add` only the coordination layer, commit with trailers
-   (`Agent: cowork` / `Task: <id>`), and **push**.
+1. Writes a result/handoff entry to `.shared/handoff/inbox.code.jsonl`:
+   `{ts, actor, task, status, did, flags_count, next_recommended, refs}`.
+2. Refreshes `.shared/state.md` (active task, holder, open items).
+3. `git add -A` (full task output + ledger), commits with trailers
+   (`Agent: cowork` / `Task: <id>`), and **pushes**.
 
 The push is the signal. Code is then woken by a git event, by the human, or by
 polling; it pulls, reads `inbox.code.jsonl`, and issues the next task.
 
-### Confidentiality boundary (default)
-Only the **sanitized coordination layer** flows through the cloud repo. Sensitive
-content — full drafts, full review notes, anything under `.shared/review/` —
-**stays local** and is referenced by path in `refs`, never by content. The
-`.gitignore` enforces this; do not override it without an explicit decision.
+### Push everything (current mode)
+Operator decision: push the **full** output — drafts, review notes, everything —
+so Code always has complete context. No sanitization step. (Revisit only if the
+operator reinstates a confidentiality boundary.)

@@ -1,16 +1,3 @@
-# Confidentiality boundary — sensitive content stays LOCAL, never pushed to the
-# cloud repo. Only the sanitized coordination layer (handoff inboxes, state.md)
-# is allowed through git. See PROTOCOL.md "Confidentiality boundary".
-
-# Sensitive working content (full drafts, review notes, legal material)
-.shared/review/
-.shared/private/
-*.local.md
-
-# Codex/agent raw transcripts and smoke artifacts
-*.smoketest.txt
-**/codex_transcript*.txt
-
-# OS / tooling noise
+# Push-everything mode (operator decision). Only OS/tooling noise is ignored.
 .DS_Store
 Thumbs.db
