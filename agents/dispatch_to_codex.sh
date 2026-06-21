@@ -2,36 +2,38 @@
 # dispatch_to_codex.sh - Code -> Codex task dispatch (the LOCAL path).
 #
 # The orchestrator ("The Bridge") runs locally, so unlike the cloud topology in
-# PROTOCOL.md it can drive Codex directly. This runs `codex exec` non-interactively
-# in danger-full-access / approval-never mode, with the prompt piped on stdin (the
-# `-` sentinel) to avoid the interactive hang. It captures the transcript to
-# .shared/review/ and appends ONE normalized result event to the merged stream
-# .shared/events/orchestrator_inbox.jsonl.
+# PROTOCOL.md it can drive Codex directly. Runs `codex exec` non-interactively with
+# the prompt piped on stdin (the `-` sentinel) to avoid the interactive hang. The
+# permission level is chosen PER RUN and confirmed with the human before anything
+# executes - there is no silent full-access default. Captures the transcript to
+# .shared/review/ and appends ONE normalized event to the merged stream.
 #
 # De-dupe with the watcher: watch_codex.py also watches .shared/review/*, so after
-# emitting directly we PRE-SEED .shared/events/.codex_cursor with this file's
-# signature, so the watcher won't emit a second event for the same artifact. The
-# orchestrator's idempotent dedup is the backstop for any race.
+# emitting we PRE-SEED .shared/events/.codex_cursor with this file's signature.
 #
 # Usage:
-#   dispatch_to_codex.sh --task <id> --prompt "<text>" [options]
-#   echo "<prompt>" | dispatch_to_codex.sh --task <id>
+#   dispatch_to_codex.sh --task <id> --sandbox <level> [--prompt "<text>"] [options]
+#   echo "<prompt>" | dispatch_to_codex.sh --task <id> --sandbox read-only
 #
 # Options:
-#   --task <id>      required; task id used in the event + filename
-#   --prompt <text>  the instruction for Codex; if omitted, read from stdin
-#   --next "<hint>"  next_hint to put on the emitted event
-#   --dry-run        print the exact codex command + planned event; exec NOTHING
-#   -h | --help      this help
+#   --task <id>        required; task id used in the event + filename
+#   --sandbox <level>  REQUIRED (no default): read-only | workspace-write | danger-full-access
+#   --prompt <text>    the instruction for Codex; if omitted, read from stdin
+#   --next "<hint>"    next_hint to put on the emitted event
+#   --yes              skip the interactive sandbox-confirm (for headless/automation)
+#   --dry-run          print the exact codex command + planned event; exec NOTHING
+#   -h | --help        this help
 #
 # Env:
-#   CODEX_EXEC_FLAGS  default: --dangerously-bypass-approvals-and-sandbox
+#   CODEX_EXEC_FLAGS  advanced override of the codex flags (bypasses --sandbox mapping)
 #   CODEX_MODEL       optional; adds  -m <model>
+#   CODEX_TIMEOUT     seconds before the codex run is killed (default 900)
+#   BRIDGE_AUTOCONFIRM=1  skip the sandbox-confirm (same as --yes)
 #   SHARED_DIR        default: <repo>/.shared
 #
-# Gate: full-access Codex can modify files. v1 uses it for verify/mine and captures
-# output to review/. A human in The Bridge approves the prompt; the orchestrator
-# does not auto-apply any Codex-proposed irreversible change.
+# Gate: the sandbox level is confirmed with the human at the start of every run
+# (unless --yes/BRIDGE_AUTOCONFIRM). Verify flag spellings with `codex exec --help`
+# if your codex version differs.
 set -u
 
 usage() { sed -n '2,40p' "$0" | sed 's/^# \{0,1\}//'; }
@@ -42,12 +44,14 @@ SHARED_DIR="${SHARED_DIR:-$REPO/.shared}"
 EVENTS_DIR="$SHARED_DIR/events"
 REVIEW_DIR="$SHARED_DIR/review"
 LOG="$SHARED_DIR/log.jsonl"
-CODEX_EXEC_FLAGS="${CODEX_EXEC_FLAGS:---dangerously-bypass-approvals-and-sandbox}"
+CODEX_TIMEOUT="${CODEX_TIMEOUT:-900}"
 
-TASK=""; PROMPT=""; NEXT_HINT="Code: review Codex output and decide the next task per the playbook."; DRYRUN="0"; YES="0"
+TASK=""; PROMPT=""; NEXT_HINT="Code: review Codex output and decide the next task per the playbook."
+DRYRUN="0"; YES="0"; SANDBOX=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --task)    TASK="${2:-}"; shift 2;;
+    --sandbox) SANDBOX="${2:-}"; shift 2;;
     --prompt)  PROMPT="${2:-}"; shift 2;;
     --next)    NEXT_HINT="${2:-}"; shift 2;;
     --dry-run) DRYRUN="1"; shift;;
@@ -61,6 +65,20 @@ if [ -z "$PROMPT" ] && [ ! -t 0 ]; then PROMPT="$(cat)"; fi
 [ -z "$TASK" ]   && { echo "ERROR: --task is required" >&2; exit 2; }
 [ -z "$PROMPT" ] && { echo "ERROR: --prompt (or piped stdin) is required" >&2; exit 2; }
 
+# Resolve the codex permission flags from --sandbox (no silent default), unless an
+# advanced CODEX_EXEC_FLAGS override is supplied.
+if [ -n "${CODEX_EXEC_FLAGS:-}" ]; then
+  EXEC_FLAGS="$CODEX_EXEC_FLAGS"; SBX_DESC="custom(CODEX_EXEC_FLAGS)"
+else
+  case "$SANDBOX" in
+    read-only)          EXEC_FLAGS="--sandbox read-only --ask-for-approval never";       SBX_DESC="read-only";;
+    workspace-write)    EXEC_FLAGS="--sandbox workspace-write --ask-for-approval never"; SBX_DESC="workspace-write";;
+    danger-full-access) EXEC_FLAGS="--dangerously-bypass-approvals-and-sandbox";         SBX_DESC="danger-full-access";;
+    "") echo "ERROR: --sandbox {read-only|workspace-write|danger-full-access} is required (no default)." >&2; exit 2;;
+    *)  echo "ERROR: invalid --sandbox '$SANDBOX' (expected read-only|workspace-write|danger-full-access)." >&2; exit 2;;
+  esac
+fi
+
 mkdir -p "$REVIEW_DIR" "$EVENTS_DIR"
 TS="$(date -u +%Y%m%dT%H%M%SZ)"
 REL="review/codex_${TASK}_${TS}.md"
@@ -71,16 +89,15 @@ MODEL_ARGS=()
 
 if [ "$DRYRUN" = "1" ]; then
   cat <<EOF
-[DRY-RUN] dispatch_to_codex  task=$TASK
+[DRY-RUN] dispatch_to_codex  task=$TASK  sandbox=$SBX_DESC  timeout=${CODEX_TIMEOUT}s
   would run (prompt piped on stdin, '-' sentinel avoids the hang):
-      printf '%s' "<prompt>" | codex exec $CODEX_EXEC_FLAGS ${MODEL_ARGS[*]:-} \\
+      printf '%s' "<prompt>" | timeout -k 30 ${CODEX_TIMEOUT} codex exec $EXEC_FLAGS ${MODEL_ARGS[*]:-} \\
           -C "$REPO" -o "<final-msg-tmp>" -   > "$REVIEW_ABS" 2>&1
   prompt (first line): $(printf '%s' "$PROMPT" | head -n1)
   would capture transcript -> $REVIEW_ABS
   would emit ONE event -> $EVENTS_DIR/orchestrator_inbox.jsonl :
-      {"ts":"<now>","source":"codex","task":"$TASK","kind":"result|error",
-       "summary":"<codex final message, trimmed>","refs":["$REL"],
-       "next_hint":"$NEXT_HINT"}
+      {"ts":"<now>","source":"codex","task":"$TASK","kind":"result|needs_input|error",
+       "summary":"<codex final message, trimmed>","refs":["$REL"],"next_hint":"$NEXT_HINT"}
   would pre-seed -> $EVENTS_DIR/.codex_cursor (so watch_codex won't double-emit $REL)
   No codex run, no file written, no event emitted.
 EOF
@@ -89,28 +106,35 @@ fi
 
 command -v codex >/dev/null 2>&1 || { echo "ERROR: codex not found on PATH" >&2; exit 127; }
 
-# M5 fix: full-access Codex (no sandbox, no approvals) is an irreversible-capable
-# action. Enforce the gate in code, not just in the playbook: require explicit
-# confirmation unless --yes or BRIDGE_AUTOCONFIRM=1. Refuse to run unattended.
+# Per-run permission gate (operator decision): confirm the sandbox level before the
+# run, in code - not just in the playbook. --yes / BRIDGE_AUTOCONFIRM bypass it.
 if [ "$YES" != "1" ] && [ "${BRIDGE_AUTOCONFIRM:-0}" != "1" ]; then
   if [ -e /dev/tty ]; then
-    printf 'Run Codex FULL-ACCESS (no sandbox) on %s, task %s? [y/N] ' "$REPO" "$TASK" >/dev/tty
+    printf 'Run Codex [sandbox=%s] on %s, task %s? [y/N] ' "$SBX_DESC" "$REPO" "$TASK" >/dev/tty
     read -r reply </dev/tty || reply=""
     case "$reply" in y|Y|yes|YES) ;; *) echo "aborted (no confirmation; use --yes to skip)." >&2; exit 4;; esac
   else
-    echo "ERROR: full-access Codex needs confirmation; pass --yes or set BRIDGE_AUTOCONFIRM=1." >&2
+    echo "ERROR: Codex run needs confirmation of sandbox=$SBX_DESC; pass --yes or set BRIDGE_AUTOCONFIRM=1." >&2
     exit 4
   fi
 fi
 
-# --- real run ---
+# --- real run (F7: timeout so a hung Codex never wedges the loop silently) ---
 LASTMSG="$(mktemp)"
-printf '%s' "$PROMPT" | codex exec $CODEX_EXEC_FLAGS "${MODEL_ARGS[@]}" -C "$REPO" -o "$LASTMSG" - > "$REVIEW_ABS" 2>&1
-CRC=$?
-# B3 fix: do NOT equate exit-0 with a substantive result. An empty final message
-# on exit 0 must not signal a "result" (the playbook would read it as convergence).
+if command -v timeout >/dev/null 2>&1; then
+  printf '%s' "$PROMPT" | timeout -k 30 "$CODEX_TIMEOUT" codex exec $EXEC_FLAGS "${MODEL_ARGS[@]}" -C "$REPO" -o "$LASTMSG" - > "$REVIEW_ABS" 2>&1
+  CRC=$?
+else
+  echo "WARN: 'timeout' not found; running codex without a timeout guard." >&2
+  printf '%s' "$PROMPT" | codex exec $EXEC_FLAGS "${MODEL_ARGS[@]}" -C "$REPO" -o "$LASTMSG" - > "$REVIEW_ABS" 2>&1
+  CRC=$?
+fi
+
 FINAL="$(head -c 480 "$LASTMSG" 2>/dev/null | tr '\n' ' ' | sed 's/  */ /g')"
-if [ "$CRC" -ne 0 ]; then
+# B3 + F7: exit-0-with-empty-output is not a result; a timeout (124) is an error.
+if [ "$CRC" -eq 124 ]; then
+  KIND="error"; FINAL="codex timed out after ${CODEX_TIMEOUT}s (partial transcript in $REL)"
+elif [ "$CRC" -ne 0 ]; then
   KIND="error"
 elif [ -n "$FINAL" ]; then
   KIND="result"
@@ -198,6 +222,6 @@ if log:
 print("emitted: " + line)
 PY
 
-echo "codex exit=$CRC  kind=$KIND  transcript=$REL"
+echo "codex exit=$CRC  kind=$KIND  sandbox=$SBX_DESC  transcript=$REL"
 [ "$CRC" -ne 0 ] && exit "$CRC"
 exit 0
