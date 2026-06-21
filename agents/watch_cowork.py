@@ -22,6 +22,7 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -86,17 +87,29 @@ def run_git(args):
 
 
 def read_cursor():
+    """Return (obj, state) where state is 'ok' | 'missing' | 'corrupt'."""
+    if not CURSOR_PATH.exists():
+        return {}, "missing"
     try:
-        return json.loads(CURSOR_PATH.read_text(encoding="utf-8"))
-    except Exception:  # noqa: BLE001 - missing/corrupt cursor => replay from scratch
-        return {}
+        return json.loads(CURSOR_PATH.read_text(encoding="utf-8")), "ok"
+    except Exception:  # noqa: BLE001
+        return {}, "corrupt"
 
 
 def write_cursor(obj):
+    # F8 fix: unique tmp per writer so concurrent writers can't clobber a shared tmp.
     EVENTS_DIR.mkdir(parents=True, exist_ok=True)
-    tmp = CURSOR_PATH.with_name(CURSOR_PATH.name + ".tmp")
-    tmp.write_text(json.dumps(obj), encoding="utf-8")
-    os.replace(str(tmp), str(CURSOR_PATH))
+    fd, tmp = tempfile.mkstemp(dir=str(EVENTS_DIR), prefix=CURSOR_PATH.name + ".", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(obj))
+        os.replace(tmp, str(CURSOR_PATH))
+    except Exception:
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
+        raise
 
 
 def _lock(timeout=10.0):
@@ -134,6 +147,18 @@ def append_event(event):
         _unlock()
 
 
+def _status_kind(status):
+    # F4 fix: a non-empty status that maps to nothing must force inspection
+    # (needs_input), NOT be silently relabeled "progress" (which the playbook drops).
+    if not status:
+        return "progress"
+    kind = STATUS_TO_KIND.get(status)
+    if kind is None:
+        log("WARN: unmapped status=%r -> needs_input (review)" % status)
+        return "needs_input"
+    return kind
+
+
 def normalize_inbox_entry(entry, source):
     status = str(entry.get("status") or entry.get("kind") or "").strip().lower()
     refs = entry.get("refs") or []
@@ -143,7 +168,7 @@ def normalize_inbox_entry(entry, source):
         "ts": entry.get("ts") or now_iso(),
         "source": source,
         "task": entry.get("task") or entry.get("taskId") or "unknown",
-        "kind": STATUS_TO_KIND.get(status, "progress"),
+        "kind": _status_kind(status),
         "summary": entry.get("did") or entry.get("summary") or entry.get("msg") or "",
         "refs": list(refs),
         "next_hint": entry.get("next_recommended") or entry.get("next_hint") or entry.get("next") or "",
@@ -186,7 +211,13 @@ def run_once():
         head_id = out.strip()
         content = None
 
-    cursor = read_cursor()
+    cursor, cstate = read_cursor()
+    if cstate == "corrupt":
+        log("WARN: .cowork_cursor corrupt; renaming aside (entries may re-emit; orchestrator dedups)")
+        try:
+            os.replace(str(CURSOR_PATH), str(CURSOR_PATH) + ".corrupt")
+        except OSError:
+            pass
     if head_id == cursor.get("sha"):
         log("no change (tip=%s)" % head_id[:16])
         return 0

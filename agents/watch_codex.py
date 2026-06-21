@@ -10,10 +10,12 @@ to disk without going through git, so there is nothing to fetch - we watch files
 Each new/changed signal becomes one normalized event appended to the *same* merged
 stream as the Cowork sensor: ``.shared/events/orchestrator_inbox.jsonl``.
 
-Idempotent: a cursor (``.shared/events/.codex_cursor``) tracks an mtime:size signature
+Idempotent: a cursor (``.shared/events/.codex_cursor``) tracks an mtime_ns:size signature
 per review file and a sha1 per emitted inbox line, so unchanged files and already-seen
-entries never re-emit. Resilient: per-file and per-line errors are logged and skipped;
-the loop outlives any single bad cycle.
+entries never re-emit. On a *cold start* (cursor missing) or a *corrupt* cursor the review
+scan is BASELINED (signatures recorded, nothing emitted) so stale fixtures never flood the
+orchestrator. Resilient: per-file and per-line errors are logged and skipped; the loop
+outlives any single bad cycle.
 
 Standard library only. Python 3.8+. See agents/event_schema.md for the event shape.
 """
@@ -23,6 +25,7 @@ import json
 import os
 import re
 import sys
+import tempfile
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -41,7 +44,9 @@ CODEX_INBOX = SHARED_DIR / "handoff" / "inbox.code.jsonl"
 INTERVAL = int(os.environ.get("POLL_INTERVAL", "5"))
 VERBOSE = ("--verbose" in sys.argv) or ("--once" in sys.argv) or bool(os.environ.get("WATCH_VERBOSE"))
 
-TASK_RE = re.compile(r"t-\d{6,8}-[A-Za-z0-9_-]+")
+# F20: task ids use hyphens (t-YYYYMMDD-slug); excluding "_" stops the regex from
+# swallowing the "_<TS>" suffix in review filenames like codex_<task>_<ts>.md.
+TASK_RE = re.compile(r"t-\d{6,8}-[A-Za-z0-9-]+")
 STATUS_TO_KIND = {
     "result": "result", "done": "result", "complete": "result", "completed": "result",
     "output": "result", "ok": "result", "finalized": "result",
@@ -73,18 +78,43 @@ def log(msg):
         print(line)
 
 
+def _status_kind(status):
+    # F4 fix: a non-empty status that maps to nothing must force inspection
+    # (needs_input), NOT be silently relabeled "progress" (which the playbook drops).
+    if not status:
+        return "progress"
+    kind = STATUS_TO_KIND.get(status)
+    if kind is None:
+        log("WARN: unmapped status=%r -> needs_input (review)" % status)
+        return "needs_input"
+    return kind
+
+
 def read_cursor():
+    """Return (obj, state) where state is 'ok' | 'missing' | 'corrupt'."""
+    if not CURSOR_PATH.exists():
+        return {}, "missing"
     try:
-        return json.loads(CURSOR_PATH.read_text(encoding="utf-8"))
-    except Exception:  # noqa: BLE001 - missing/corrupt cursor => replay from scratch
-        return {}
+        return json.loads(CURSOR_PATH.read_text(encoding="utf-8")), "ok"
+    except Exception:  # noqa: BLE001
+        return {}, "corrupt"
 
 
 def write_cursor(obj):
+    # F8 fix: unique tmp per writer so a concurrent dispatch+watcher write can't
+    # clobber a shared ".codex_cursor.tmp" and corrupt the cursor.
     EVENTS_DIR.mkdir(parents=True, exist_ok=True)
-    tmp = CURSOR_PATH.with_name(CURSOR_PATH.name + ".tmp")
-    tmp.write_text(json.dumps(obj), encoding="utf-8")
-    os.replace(str(tmp), str(CURSOR_PATH))
+    fd, tmp = tempfile.mkstemp(dir=str(EVENTS_DIR), prefix=CURSOR_PATH.name + ".", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(obj))
+        os.replace(tmp, str(CURSOR_PATH))
+    except Exception:
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
+        raise
 
 
 def _lock(timeout=10.0):
@@ -134,7 +164,9 @@ def artifact_kind(name):
 
 def normalize_artifact(name, rel, mtime):
     match = TASK_RE.search(name)
-    task = match.group(0) if match else Path(name).stem
+    # F10 fix: do not fabricate a task id from the filename stem; use "unknown"
+    # (matches the inbox path) so phantom never-converging tasks aren't created.
+    task = match.group(0) if match else "unknown"
     return {
         "ts": iso_from_mtime(mtime),
         "source": "codex",
@@ -155,7 +187,7 @@ def normalize_inbox_entry(entry, source):
         "ts": entry.get("ts") or now_iso(),
         "source": source,
         "task": entry.get("task") or entry.get("taskId") or "unknown",
-        "kind": STATUS_TO_KIND.get(status, "progress"),
+        "kind": _status_kind(status),
         "summary": entry.get("did") or entry.get("summary") or entry.get("msg") or "",
         "refs": list(refs),
         "next_hint": entry.get("next_recommended") or entry.get("next_hint") or entry.get("next") or "",
@@ -164,10 +196,20 @@ def normalize_inbox_entry(entry, source):
 
 def run_once():
     EVENTS_DIR.mkdir(parents=True, exist_ok=True)
-    cursor = read_cursor()
+    cursor, cstate = read_cursor()
+    if cstate == "corrupt":
+        log("WARN: .codex_cursor corrupt; renaming aside and re-baselining (no replay)")
+        try:
+            os.replace(str(CURSOR_PATH), str(CURSOR_PATH) + ".corrupt")
+        except OSError:
+            pass
+    # F11/F12: on a cold start (missing) or corruption, BASELINE the review scan -
+    # record signatures without emitting, so stale fixtures don't flood the stream.
+    baseline = cstate in ("missing", "corrupt")
     files = dict(cursor.get("files", {}))
     entries_seen = set(cursor.get("entries", []))
     emitted = 0
+    baselined = 0
 
     # 1) Codex review artifacts under .shared/review/ (top-level files).
     if REVIEW_DIR.is_dir():
@@ -190,16 +232,21 @@ def run_once():
                 st = ent.stat()
             except OSError:
                 continue
-            sig = "%d:%d" % (int(st.st_mtime), st.st_size)
+            # F16 fix: sub-second precision so a same-second, same-size rewrite is seen.
+            sig = "%d:%d" % (st.st_mtime_ns, st.st_size)
             if files.get(rel) == sig:
+                continue
+            files[rel] = sig
+            if baseline:
+                baselined += 1
                 continue
             event = normalize_artifact(name, rel, st.st_mtime)
             append_event(event)
-            files[rel] = sig
             emitted += 1
             log("emit codex artifact %s kind=%s" % (rel, event["kind"]))
 
-    # 2) Codex-authored entries in the local inbox.code.jsonl.
+    # 2) Codex-authored entries in the local inbox.code.jsonl. These are real results,
+    #    not fixtures, so they are emitted (sha1-deduped) even on a cold start.
     if CODEX_INBOX.exists():
         try:
             lines = CODEX_INBOX.read_text(encoding="utf-8").splitlines()
@@ -232,8 +279,8 @@ def run_once():
             log("emit codex task=%s kind=%s" % (event["task"], event["kind"]))
 
     write_cursor({"files": files, "entries": sorted(entries_seen)})
-    log("cycle done: emitted=%d files_tracked=%d entries_tracked=%d"
-        % (emitted, len(files), len(entries_seen)))
+    log("cycle done: emitted=%d baselined=%d files_tracked=%d entries_tracked=%d"
+        % (emitted, baselined, len(files), len(entries_seen)))
     return emitted
 
 

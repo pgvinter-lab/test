@@ -175,9 +175,11 @@ files = cur.get("files", {}); entries = cur.get("entries", [])
 abs_path = os.environ.get("REVIEW_ABS", "")
 if abs_path and os.path.exists(abs_path):
     st = os.stat(abs_path)
-    files[os.environ["REF"]] = "%d:%d" % (int(st.st_mtime), st.st_size)
-tmp = cursor + ".tmp"
-with open(tmp, "w", encoding="utf-8") as fh:
+    # F16: match watch_codex's sub-second signature so the pre-seed truly suppresses the dup.
+    files[os.environ["REF"]] = "%d:%d" % (st.st_mtime_ns, st.st_size)
+import tempfile as _tf  # F8: unique tmp so a concurrent watcher write can't clobber it
+_fd, tmp = _tf.mkstemp(dir=os.path.dirname(cursor), prefix=os.path.basename(cursor) + ".", suffix=".tmp")
+with os.fdopen(_fd, "w", encoding="utf-8") as fh:
     json.dump({"files": files, "entries": entries}, fh)
 os.replace(tmp, cursor)
 
