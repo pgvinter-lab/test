@@ -119,15 +119,14 @@ EOF
 fi
 
 # --- real dispatch: commit + push ---
-[ -z "$(git -C "$REPO" config user.name)"  ] && git -C "$REPO" config user.name  "code"
-[ -z "$(git -C "$REPO" config user.email)" ] && git -C "$REPO" config user.email "pgvinter@gmail.com"
-
 git -C "$REPO" add "$INBOX" "$LOG" 2>/dev/null
 
 MSGFILE="$(mktemp)"
 printf 'Dispatch %s to cowork: %s\n\n%s\n\nAgent: code\nTask: %s\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>\n' \
   "$KIND" "$TASK" "$INSTRUCTION" "$TASK" > "$MSGFILE"
-git -C "$REPO" commit -q -F "$MSGFILE" || { echo "ERROR: commit failed (nothing to commit?)" >&2; rm -f "$MSGFILE"; exit 1; }
+# F27: set identity per-commit only - never mutate the operator's repo git config.
+git -C "$REPO" -c user.name=code -c user.email=pgvinter@gmail.com commit -q -F "$MSGFILE" \
+  || { echo "ERROR: commit failed (nothing to commit?)" >&2; rm -f "$MSGFILE"; exit 1; }
 rm -f "$MSGFILE"
 echo "committed: $(git -C "$REPO" rev-parse --short HEAD)  ($KIND -> cowork, task=$TASK)"
 

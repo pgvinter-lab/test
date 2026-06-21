@@ -150,23 +150,21 @@ Each round:
 
 ---
 
-## Phase 4 — Sync to the system of record
+## Phase 4 — Sync to the system of record (finalization doorbell)
 
 1. Put outputs where they belong (confirmed in Phase 1): code in the repo,
    rationale/decisions in `.shared/decisions/`, provenance in the log.
-2. Update `.shared/state.md`: active task → done, baton released, open risks.
-3. Append a final `summary` event to `.shared/log.jsonl`.
-4. Commit with attribution trailers (small, descriptive):
+2. Ring the doorbell with the canonical helper — it writes the Code inbox entry,
+   refreshes `.shared/state.md`, appends the log `summary`, and commits+pushes
+   (rebase-and-retry on non-ff). Do NOT hand-roll a separate commit:
    ```bash
-   git add -A
-   git commit -m "<task-id>: <what was accomplished>
-
-   Agent: claude
-   Task: <task-id>"
+   python .claude/skills/work-with-codex-to/scripts/finalize_task.py \
+     --actor cowork --task <task-id> --status done \
+     --did "<what was accomplished>" --flags-count <n> \
+     --next-recommended "<next action for Code>" --ref <changed-path>
    ```
-5. **Push is an outward-facing action** — push and/or open a PR only when the
-   user has authorized it (or per the repo's standing policy). Default to
-   committing locally and reporting.
+   Use `--actor codex` for a Codex-run task; the commit trailer mirrors the actor.
+   Push-everything mode is on, so the helper pushes the full workspace.
 
 ---
 

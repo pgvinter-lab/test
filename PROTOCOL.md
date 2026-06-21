@@ -15,12 +15,15 @@ reversibility — not for blocking.
 - Preserve user and other-agent work.
 
 ## During work
-- You are `claude` or `codex`. Use the task ID in notes, commits, reviews, and
-  handoffs.
+- Canonical identities: the **orchestrator** is `code`; the **producers** (the two
+  AI surfaces whose results flow through the event stream) are `cowork` and
+  `codex`. "claude" is not an identity here — the Claude/Cowork surface is
+  `cowork`. Use the task ID in notes, commits, reviews, and handoffs.
 - Prefer separate branches or separate review files for parallel work.
-- Make small, single-purpose commits. Every commit carries trailers:
+- Make small, single-purpose commits. Every commit carries trailers that mirror
+  who did the work:
   ```
-  Agent: <claude|codex>
+  Agent: <code|cowork|codex>
   Task: <task-id>
   ```
 - Record concise rationale, assumptions, evidence, risks, and next steps. Do
@@ -90,14 +93,21 @@ Code  ←→ [git repo / .shared bus] ←→  Cowork  ←→ [Desktop Commander]
   transitively, through Cowork.
 
 ### Finalization push (the doorbell)
-Every Cowork/Codex task MUST end by making Code aware. As the last step, the
-local executor:
+Every Cowork/Codex task MUST end by making Code aware. Do not hand-roll this — run
+the canonical helper:
 
-1. Writes a result/handoff entry to `.shared/handoff/inbox.code.jsonl`:
-   `{ts, actor, task, status, did, flags_count, next_recommended, refs}`.
-2. Refreshes `.shared/state.md` (active task, holder, open items).
-3. `git add -A` (full task output + ledger), commits with trailers
-   (`Agent: cowork` / `Task: <id>`), and **pushes**.
+```bash
+python .claude/skills/work-with-codex-to/scripts/finalize_task.py \
+  --actor <cowork|codex> --task <id> --status done \
+  --did "<what changed>" --flags-count <n> \
+  --next-recommended "<what Code should do next>" --ref <path>
+```
+
+It writes `.shared/handoff/inbox.code.jsonl`
+(`{ts, actor, task, status, did, flags_count, next_recommended, refs}`), refreshes
+`.shared/state.md`, appends a `.shared/log.jsonl` summary, then `git add -A` and
+commits with trailers (`Agent: <actor>` — mirrors who did the work — / `Task: <id>`)
+and pushes everything (rebase-and-retry on non-ff).
 
 The push is the signal. Code is then woken by a git event, by the human, or by
 polling; it pulls, reads `inbox.code.jsonl`, and issues the next task.
