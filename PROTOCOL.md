@@ -71,3 +71,39 @@ reversibility — not for blocking.
   conflicts from concurrent appends).
 - `.shared/decisions/` — ADR-style markdown for significant decisions and
   preserved disagreements.
+
+## Cross-surface orchestration (Code ↔ Cowork ↔ Codex)
+
+The three surfaces do not share a live runtime. The topology is forced:
+
+```
+Code  ←→ [git repo / .shared bus] ←→  Cowork  ←→ [Desktop Commander] ←→ Codex (local)
+```
+
+- **Code** (cloud) — orchestrator. Holds the plan/state/audit. Reads results
+  from `.shared/handoff/inbox.code.jsonl`, decides the next task, writes it to
+  `.shared/handoff/inbox.cowork.jsonl`, commits, and pushes.
+- **Cowork** (cloud + Desktop Commander) — executor/drafter and local arm.
+  Drives **Codex** locally. Reads `inbox.cowork.jsonl`, does the work, and at
+  finalization performs the **finalization push** (below).
+- **Codex** (local) — verify/mine, invoked by Cowork. Code reaches Codex only
+  transitively, through Cowork.
+
+### Finalization push (the doorbell)
+When Cowork/Codex finish a task, the local executor MUST, as its last step:
+
+1. Write a **sanitized** result/handoff entry to `.shared/handoff/inbox.code.jsonl`
+   — enough for Code to orchestrate the next step, and no more:
+   `{ts, actor, task, status, did (high-level), flags_count, next_recommended, refs:[LOCAL paths]}`.
+2. Refresh a sanitized `.shared/state.md` (active task, holder, open items).
+3. `git add` only the coordination layer, commit with trailers
+   (`Agent: cowork` / `Task: <id>`), and **push**.
+
+The push is the signal. Code is then woken by a git event, by the human, or by
+polling; it pulls, reads `inbox.code.jsonl`, and issues the next task.
+
+### Confidentiality boundary (default)
+Only the **sanitized coordination layer** flows through the cloud repo. Sensitive
+content — full drafts, full review notes, anything under `.shared/review/` —
+**stays local** and is referenced by path in `refs`, never by content. The
+`.gitignore` enforces this; do not override it without an explicit decision.
