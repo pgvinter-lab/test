@@ -23,12 +23,29 @@ FOLLOW="0"
 mkdir -p "$EVENTS"
 export SHARED_DIR
 
-# Idempotent start: only launch watchers if none from the pid file are alive.
+# F13: identity-validated liveness so a recycled PID doesn't read as "alive".
+pid_is_live_watcher() {  # $1 = bare pid
+  local pid="$1" args=""
+  [ -n "$pid" ] || return 1
+  kill -0 "$pid" 2>/dev/null || return 1
+  if [ -r "/proc/$pid/cmdline" ]; then
+    args="$(tr '\0' ' ' < "/proc/$pid/cmdline" 2>/dev/null)"
+  else
+    args="$(ps -p "$pid" -o args= 2>/dev/null || ps -p "$pid" 2>/dev/null || true)"
+  fi
+  if [ -n "$args" ]; then
+    case "$args" in *watch_cowork.py*|*watch_codex.py*) return 0 ;; *) return 1 ;; esac
+  fi
+  return 0   # identity unknown -> assume live (no worse than kill -0)
+}
+
+# Idempotent start: only launch if a tagged pid is a live watcher (F13/F14).
 already_running() {
   [ -f "$PIDFILE" ] || return 1
-  while read -r pid; do
-    [ -z "$pid" ] && continue
-    kill -0 "$pid" 2>/dev/null && return 0
+  while IFS= read -r line; do
+    line="$(printf '%s' "$line" | tr -d '[:space:]')"; [ -z "$line" ] && continue
+    case "$line" in sh:*) pid="${line#sh:}";; ps:*) pid="${line#ps:}";; *) pid="$line";; esac
+    pid_is_live_watcher "$pid" && return 0
   done < "$PIDFILE"
   return 1
 }
@@ -40,7 +57,7 @@ else
 fi
 
 [ -f "$STREAM" ] || : > "$STREAM"   # ensure the stream exists so tail works
-COUNT="$(grep -c '' "$STREAM" 2>/dev/null || echo 0)"
+COUNT="$(wc -l < "$STREAM" 2>/dev/null | tr -d ' ')"; [ -n "$COUNT" ] || COUNT=0   # F23: avoid the grep -c '' || echo 0 double-line bug
 
 cat <<BANNER
 
