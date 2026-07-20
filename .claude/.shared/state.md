@@ -4,6 +4,6 @@ holder: code
 last_task: t-20260720-gtm-tool-routing
 last_actor: cowork
 last_status: done
-updated: 2026-07-20T17:00:06.206280Z
+updated: 2026-07-20T17:36:32.892123Z
 
-next: Code: pick a variant (0002 recommended), then wire the enrichment seam (Gemini grounding + Claude validation) and the ClickUp MEDDPICC/Sandler/Challenger field schema into the app.
+next: Code/human: pick a version+option to run, then wire the enrichment seam (agy/Gemini + Claude cross-check) and the qualify panel/ClickUp schema into the app.
