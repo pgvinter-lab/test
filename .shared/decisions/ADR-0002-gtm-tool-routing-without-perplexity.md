@@ -1,6 +1,6 @@
 # ADR-0002 — GTM tool routing (Variant B: WITHOUT Perplexity) — RECOMMENDED
 
-- **Status:** Proposed (recommended over ADR-0001)
+- **Status:** Superseded by ADR-0003 (recommended path preserved as V2 there)
 - **Date:** 2026-07-20
 - **Task:** t-20260720-gtm-tool-routing
 - **Actor:** cowork

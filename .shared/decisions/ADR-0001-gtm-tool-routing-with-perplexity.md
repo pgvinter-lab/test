@@ -1,6 +1,6 @@
 # ADR-0001 — GTM tool routing (Variant A: WITH Perplexity)
 
-- **Status:** Proposed
+- **Status:** Superseded by ADR-0003
 - **Date:** 2026-07-20
 - **Task:** t-20260720-gtm-tool-routing
 - **Actor:** cowork
