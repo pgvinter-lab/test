@@ -4,6 +4,6 @@ holder: code
 last_task: t-20260720-gtm-tool-routing
 last_actor: cowork
 last_status: done
-updated: 2026-07-20T17:36:32.892123Z
+updated: 2026-07-20T18:00:45.355088Z
 
-next: Code/human: pick a version+option to run, then wire the enrichment seam (agy/Gemini + Claude cross-check) and the qualify panel/ClickUp schema into the app.
+next: Code/human: pick a version+option (V2/Quality recommended), then wire (a) the LLM-native Source loop-until-dry+verify pass and (b) the Claude-conductor + Codex/agy-as-MCP-servers orchestration into the app.
