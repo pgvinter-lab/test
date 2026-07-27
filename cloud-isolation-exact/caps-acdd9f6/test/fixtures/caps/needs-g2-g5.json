@@ -1,0 +1,71 @@
+{
+  "schema": "bridge-caps-needs-v1",
+  "profile_id": "fixture-needs",
+  "owner_managed": true,
+  "updated_at": "2026-07-24T00:00:00.000Z",
+  "provenance": {
+    "source_path": "caps/needs-profile.ts",
+    "source_section": "SEEDED_NEEDS",
+    "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "observed_at": "2026-07-24T00:00:00.000Z",
+    "capture_class": "guaranteed",
+    "producer_surface": "code"
+  },
+  "needs": [
+    {
+      "id": "G2",
+      "title": "Venue Profile Fetcher",
+      "purpose": "Fetch court/venue specific rules, procedures, and profiles.",
+      "match_terms": [
+        "venue",
+        "court",
+        "profile",
+        "rules",
+        "fetcher"
+      ],
+      "priority": "high",
+      "free_first_policy": true
+    },
+    {
+      "id": "G3",
+      "title": "Per-venue Deadline Engine",
+      "purpose": "Calculate and track deadlines according to specific venue rules.",
+      "match_terms": [
+        "deadline",
+        "timeline",
+        "rules",
+        "engine",
+        "venue"
+      ],
+      "priority": "high",
+      "free_first_policy": true
+    },
+    {
+      "id": "G4",
+      "title": "Judge and Opposing Counsel Analytics",
+      "purpose": "Analyze histories and tendencies of judges and opposing counsel from free sources.",
+      "match_terms": [
+        "judge",
+        "counsel",
+        "analytics",
+        "history",
+        "tendencies"
+      ],
+      "priority": "medium",
+      "free_first_policy": true
+    },
+    {
+      "id": "G5",
+      "title": "Jurisdiction-correct Forms and Templates",
+      "purpose": "Provide correct legal forms and templates based on jurisdiction.",
+      "match_terms": [
+        "forms",
+        "templates",
+        "jurisdiction",
+        "correct"
+      ],
+      "priority": "high",
+      "free_first_policy": true
+    }
+  ]
+}

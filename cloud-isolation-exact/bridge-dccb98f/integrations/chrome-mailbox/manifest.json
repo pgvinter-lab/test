@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Bridge WEB Nodes",
+  "version": "0.3.0",
+  "description": "Dispatches approved Bridge messages through exact-origin browser WEB node profiles.",
+  "permissions": ["alarms", "storage"],
+  "host_permissions": [
+    "http://127.0.0.1/*",
+    "http://localhost/*",
+    "http://[::1]/*",
+    "https://chatgpt.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Bridge WEB Nodes",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://chatgpt.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/principal.schema.json",
+  "title": "Bridge 2.0 Draft Principal Session Host Identity",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "principal", "session", "host"],
+  "properties": {
+    "schemaVersion": { "const": "0.1.0-draft.3" },
+    "principal": { "$ref": "#/$defs/principal" },
+    "session": { "$ref": "#/$defs/session" },
+    "host": { "$ref": "#/$defs/host" }
+  },
+  "$defs": {
+    "principal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "principalId",
+        "kind",
+        "displayName",
+        "issuer",
+        "subject",
+        "status",
+        "roles",
+        "createdAt"
+      ],
+      "properties": {
+        "principalId": {
+          "type": "string",
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier",
+          "pattern": "^principal\\."
+        },
+        "kind": { "enum": ["human", "agent", "service"] },
+        "displayName": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "issuer": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "subject": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "status": { "enum": ["active", "disabled"] },
+        "roles": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["scope", "role"],
+            "properties": {
+              "scope": { "enum": ["global", "project"] },
+              "projectId": {
+                "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier"
+              },
+              "role": {
+                "enum": [
+                  "owner",
+                  "administrator",
+                  "collaborator",
+                  "reviewer",
+                  "worker",
+                  "observer"
+                ]
+              }
+            },
+            "allOf": [
+              {
+                "if": { "properties": { "scope": { "const": "project" } } },
+                "then": {
+                  "properties": { "projectId": true },
+                  "required": ["projectId"]
+                }
+              }
+            ]
+          }
+        },
+        "createdAt": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/timestamp"
+        },
+        "disabledAt": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/timestamp"
+        }
+      }
+    },
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sessionId",
+        "principalId",
+        "hostId",
+        "startedAt",
+        "status",
+        "authentication",
+        "expiresAt",
+        "transportBinding"
+      ],
+      "properties": {
+        "sessionId": {
+          "type": "string",
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier",
+          "pattern": "^session\\."
+        },
+        "principalId": {
+          "type": "string",
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier",
+          "pattern": "^principal\\."
+        },
+        "hostId": {
+          "type": "string",
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier",
+          "pattern": "^host\\."
+        },
+        "startedAt": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/timestamp"
+        },
+        "expiresAt": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/timestamp"
+        },
+        "status": { "enum": ["active", "closed", "revoked"] },
+        "authentication": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["method", "assurance"],
+          "properties": {
+            "method": {
+              "enum": ["local_process", "os_user", "oidc", "mtls", "service_token"]
+            },
+            "assurance": { "enum": ["unverified", "local", "verified", "strong"] },
+            "credentialRef": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 300,
+              "description": "Reference only. Secret material is forbidden."
+            }
+          }
+        },
+        "transportBinding": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["transport", "transportSessionId", "serverInstanceId"],
+          "properties": {
+            "transport": { "enum": ["stdio", "streamable_http"] },
+            "transportSessionId": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 200
+            },
+            "serverInstanceId": {
+              "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier"
+            }
+          }
+        }
+      }
+    },
+    "host": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hostId",
+        "instanceId",
+        "hostnameHash",
+        "platform",
+        "status",
+        "registeredAt"
+      ],
+      "properties": {
+        "hostId": {
+          "type": "string",
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier",
+          "pattern": "^host\\."
+        },
+        "instanceId": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier"
+        },
+        "hostnameHash": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/sha256"
+        },
+        "platform": { "enum": ["windows", "macos", "linux", "cloud"] },
+        "status": { "enum": ["active", "retired", "quarantined"] },
+        "registeredAt": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/timestamp"
+        },
+        "publicKeyThumbprint": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/sha256"
+        }
+      }
+    }
+  }
+}

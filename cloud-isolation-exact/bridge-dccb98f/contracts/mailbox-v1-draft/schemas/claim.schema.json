@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bridge.local/contracts/mailbox-v1-draft/schemas/claim.schema.json",
+  "title": "Bridge Mailbox Delivery Claim",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["deliveryId", "deliveryToken", "consumerId", "claimedAt", "leaseExpiresAt", "message"],
+  "properties": {
+    "deliveryId": { "type": "string", "$ref": "common.schema.json#/$defs/identifier", "pattern": "^mailbox\\.delivery\\." },
+    "deliveryToken": { "type": "string", "minLength": 40, "maxLength": 100, "pattern": "^[A-Za-z0-9_-]+$" },
+    "consumerId": { "$ref": "common.schema.json#/$defs/identifier" },
+    "claimedAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+    "leaseExpiresAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+    "message": { "$ref": "message.schema.json" }
+  }
+}

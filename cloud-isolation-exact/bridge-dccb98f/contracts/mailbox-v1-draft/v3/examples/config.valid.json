@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "bridge-mailbox-config-v3",
+  "stateDirectory": "C:\\Users\\example\\AppData\\Local\\Bridge2\\mailbox",
+  "databasePath": "C:\\Users\\example\\AppData\\Local\\Bridge2\\mailbox\\mailbox.sqlite",
+  "auditMirrorPath": "C:\\Users\\example\\AppData\\Local\\Bridge2\\mailbox\\mailbox-audit.jsonl",
+  "exchangeRoot": "C:\\Users\\example\\My Drive\\Bridge Exchange",
+  "broker": {
+    "host": "127.0.0.1",
+    "port": 7319,
+    "tokenFile": "C:\\Users\\example\\AppData\\Local\\Bridge2\\mailbox\\broker-token.txt",
+    "allowedOrigins": []
+  },
+  "providers": {
+    "chatgpt": { "enabled": true, "consumerId": "provider.chatgpt.web" },
+    "antigravity": { "enabled": true, "consumerId": "provider.antigravity.mcp" },
+    "web": { "enabled": true, "consumerId": "provider.web.chrome" }
+  },
+  "webNodes": {
+    "perplexity": {
+      "schemaVersion": "bridge-web-node-v1",
+      "nodeId": "perplexity",
+      "displayName": "Perplexity",
+      "enabled": true,
+      "origin": "https://www.perplexity.ai",
+      "startUrl": "https://www.perplexity.ai/",
+      "auth": {
+        "mode": "browser-profile",
+        "signInHint": "Use Continue with Google once in the dedicated Bridge browser profile."
+      },
+      "selectors": {
+        "composer": ["textarea[placeholder]", "[contenteditable='true'][role='textbox']"],
+        "submit": ["button[aria-label='Submit']", "button[type='submit']"],
+        "response": ["main [data-testid='answer']", "main article"],
+        "busy": ["button[aria-label*='Stop']"]
+      },
+      "behavior": {
+        "submitMode": "button-or-enter",
+        "responseMode": "last-new-node",
+        "timeoutMs": 720000,
+        "settleMs": 1000,
+        "stablePolls": 5,
+        "maxBytes": 1048576
+      }
+    }
+  },
+  "delivery": {
+    "leaseMs": 900000,
+    "heartbeatExtensionMs": 300000,
+    "pollIntervalMs": 5000,
+    "defaultExpiryMs": 86400000,
+    "maxPreDispatchAttempts": 3
+  },
+  "integrations": {
+    "chromeExtensionDirectory": "C:\\Users\\example\\AppData\\Local\\Bridge2\\mailbox\\chrome-extension",
+    "antigravityPluginDirectory": "C:\\Users\\example\\AppData\\Local\\Bridge2\\mailbox\\antigravity-plugin",
+    "webBrowserProfileDirectory": "C:\\Users\\example\\AppData\\Local\\Bridge2\\mailbox\\web-browser-profile"
+  }
+}

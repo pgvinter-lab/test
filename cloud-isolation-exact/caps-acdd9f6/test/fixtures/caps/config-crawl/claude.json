@@ -1,0 +1,61 @@
+{
+  "mcpServers": {
+    "global-server-1": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "some-server",
+        "--api-key",
+        "global_secret_key_12345",
+        "--port",
+        "8080"
+      ],
+      "env": {
+        "SECRET_TOKEN": "this_is_a_secret_token_that_should_be_stripped",
+        "OTHER_ENV": "normal_val"
+      }
+    },
+    "global-server-2": {
+      "command": "python",
+      "args": [
+        "main.py",
+        "--authorization",
+        "Bearer xyz123"
+      ]
+    },
+    "global-server-3": {
+      "command": "go",
+      "args": [
+        "run",
+        "main.go",
+        "--password",
+        "go_hunter2"
+      ]
+    }
+  },
+  "projects": {
+    "C:/mock/project1": {
+      "mcpServers": {
+        "project-server-1": {
+          "command": "docker",
+          "args": [
+            "run",
+            "-e",
+            "PASSWORD=supersecretpassword",
+            "my-image"
+          ]
+        },
+        "project-server-2": {
+          "command": "npm",
+          "args": [
+            "start",
+            "--",
+            "--cookie",
+            "session_id=abcd9876",
+            "--api_key=test_api_key_098"
+          ]
+        }
+      }
+    }
+  }
+}

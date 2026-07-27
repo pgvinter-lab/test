@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "0.1.0-draft.3",
+  "runId": "doctor.run.001",
+  "projectId": "project.demo",
+  "hostId": "host.demo",
+  "generation": 1,
+  "runAt": "2026-07-12T15:00:00Z",
+  "mode": "read_only",
+  "overall": "degraded",
+  "checks": [
+    {
+      "checkId": "check.identity.binding",
+      "category": "identity",
+      "status": "pass",
+      "detail": "Principal, session, host, and transport binding are present."
+    },
+    {
+      "checkId": "check.permissions.local",
+      "category": "permissions",
+      "status": "pass",
+      "detail": "Local state permissions are restricted."
+    },
+    {
+      "checkId": "check.storage.integrity",
+      "category": "storage",
+      "status": "pass",
+      "detail": "Store integrity check passed."
+    },
+    {
+      "checkId": "check.events.sequence",
+      "category": "events",
+      "status": "pass",
+      "detail": "Event sequence and hashes are contiguous."
+    },
+    {
+      "checkId": "check.generation.active",
+      "category": "generation",
+      "status": "pass",
+      "detail": "No stale active claim was detected."
+    },
+    {
+      "checkId": "check.adapter.manifests",
+      "category": "adapter",
+      "status": "pass",
+      "detail": "Adapter manifests validate."
+    },
+    {
+      "checkId": "check.github.private",
+      "category": "github",
+      "status": "skipped",
+      "detail": "No authenticated GitHub remote is configured."
+    },
+    {
+      "checkId": "check.drive.root",
+      "category": "drive",
+      "status": "pass",
+      "detail": "Recovery scaffold is available."
+    },
+    {
+      "checkId": "check.backup.age",
+      "category": "backup",
+      "status": "warn",
+      "detail": "No approved backup-age threshold is configured.",
+      "repairAction": "Owner must approve RPO before automation."
+    },
+    {
+      "checkId": "check.secrets.placement",
+      "category": "secrets",
+      "status": "pass",
+      "detail": "No forbidden secret placement was detected."
+    }
+  ]
+}

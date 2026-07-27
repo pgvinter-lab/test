@@ -1,0 +1,24 @@
+{
+  "model": "antigravity-judgment",
+  "judged_at": "2026-07-24T12:05:00Z",
+  "verdicts": [
+    {
+      "id": "cand-free",
+      "verdict": "immediate-need",
+      "reason": "Must have it",
+      "pricing_ack": "free"
+    },
+    {
+      "id": "cand-paid",
+      "verdict": "watch",
+      "reason": "Too expensive for now",
+      "pricing_ack": "paid"
+    },
+    {
+      "id": "cand-unknown",
+      "verdict": "no",
+      "reason": "Not useful",
+      "pricing_ack": "unknown"
+    }
+  ]
+}

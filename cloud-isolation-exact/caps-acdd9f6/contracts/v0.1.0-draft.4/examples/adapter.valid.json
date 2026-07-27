@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "0.1.0-draft.4",
+  "adapterId": "adapter.procedural.mock",
+  "adapterVersion": "0.1.0-draft.4",
+  "interfaceVersion": "0.1.0-draft.4",
+  "displayName": "Procedural Guidance Mock Adapter",
+  "kind": "local_process",
+  "operations": {
+    "submit_review": {
+      "inputSchema": "../schemas/review-job.schema.json",
+      "outputSchema": "../schemas/review-job.schema.json",
+      "idempotent": true,
+      "sideEffectClass": "local_write",
+      "timeoutMs": 30000
+    }
+  },
+  "capabilities": ["review_jobs", "artifact_metadata", "event_stream"],
+  "transports": ["in_process", "stdio"],
+  "security": {
+    "credentialMode": "none",
+    "networkAccess": [],
+    "sensitiveData": "local_only",
+    "humanApprovalFor": ["external_irreversible", "sensitive_external"],
+    "approvalPolicy": {
+      "defaultDecision": "ask",
+      "preapproval": "bounded_grants",
+      "scopeExpansionDecision": "ask",
+      "grantSchema": "https://bridge2.local/contracts/v0.1.0-draft.4/schemas/approval-grant.schema.json"
+    }
+  },
+  "health": {
+    "checkOperation": "doctor",
+    "states": ["ready", "degraded", "blocked", "offline"]
+  }
+}

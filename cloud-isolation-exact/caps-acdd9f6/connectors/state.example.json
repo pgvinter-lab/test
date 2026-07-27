@@ -1,0 +1,5 @@
+{
+  "_comment": "Machine-local owned-tab registry. Copy to state.json (gitignored). Each connector re-attaches to its tab by tabId; conversationUrl is the warm thread it keeps across rounds.",
+  "chatgpt": { "tabId": null, "conversationUrl": null, "attachedAt": null },
+  "gemini": { "tabId": null, "conversationUrl": null, "attachedAt": null }
+}

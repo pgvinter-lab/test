@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "bridge-mailbox-v2",
+  "kind": "response",
+  "responseId": "mailbox.response.22222222-2222-4222-8222-222222222222",
+  "messageId": "mailbox.message.11111111-1111-4111-8111-111111111111",
+  "deliveryId": "mailbox.delivery.33333333-3333-4333-8333-333333333333",
+  "projectId": "project.synthetic",
+  "provider": "antigravity",
+  "consumerId": "provider.antigravity.mcp",
+  "createdAt": "2026-07-14T12:01:00.000Z",
+  "responseSha256": "d1a709d001c59f92ce199e21286a88e48a4932a405c66ecc9e781bb21b6f3ee5",
+  "response": "Synthetic mailbox response."
+}

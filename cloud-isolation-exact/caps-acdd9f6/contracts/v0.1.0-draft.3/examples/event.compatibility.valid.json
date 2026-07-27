@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "0.1.0-draft.3",
+  "eventId": "event.collaboration.command.001",
+  "projectId": "project.synthetic",
+  "sequence": 1,
+  "generation": 1,
+  "eventType": "collaboration.command_recorded",
+  "aggregate": {
+    "type": "project",
+    "id": "project.synthetic"
+  },
+  "actor": {
+    "principalId": "principal.compat.claude_desktop_code",
+    "sessionId": "session.compat.claude_desktop_code.synthetic",
+    "hostId": "host.synthetic"
+  },
+  "occurredAt": "2026-07-14T00:00:00Z",
+  "correlationId": "correlation.collaboration.command.001",
+  "data": {
+    "operation": "bridge_sync",
+    "agent": "claude_desktop_code",
+    "request": {
+      "project": "C:\\Synthetic\\Project"
+    },
+    "outcome": {
+      "ok": true,
+      "firstSync": false,
+      "openedNewSession": false,
+      "control": "codex",
+      "changedFiles": [
+        "src/index.ts"
+      ],
+      "changedActivityIds": [
+        "event.collaboration.command.prior"
+      ],
+      "changedActivities": [
+        {
+          "activityId": "event.collaboration.command.prior",
+          "agent": "codex",
+          "action": "log",
+          "files": [
+            "src/index.ts"
+          ],
+          "note": "Synthetic change only.",
+          "iso": "2026-07-13T23:59:00Z"
+        }
+      ],
+      "expiredLeases": 1
+    }
+  },
+  "hashAlgorithm": "sha256-bridge-cjson-v1",
+  "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+}

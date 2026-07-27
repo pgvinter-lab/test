@@ -1,0 +1,33 @@
+{
+  "id": "aistudio-web",
+  "surface": "aistudio",
+  "displayName": "Google AI Studio (web, owned tab)",
+  "transport": "claude-in-chrome",
+  "baseUrl": "https://aistudio.google.com/prompts/new_chat",
+  "newChatUrl": "https://aistudio.google.com/prompts/new_chat",
+  "ownership": { "matchUrl": "https://aistudio.google.com/*", "titleMarker": "AI Studio", "stateKey": "aistudio" },
+  "loginCheck": "window.__CONN.loggedIn() — composer present means signed in; a Google sign-in wall => login_required.",
+  "fallbackFor": "No AI-Studio CLI; this IS the surface. Strength: fast native multimodal (audio/video transcription) + very large context.",
+  "abilities": {
+    "default": { "desc": "Standard chat turn (pick model in the switcher if a tier is required).", "activate": "Optional model switcher.", "expectFiles": false, "settleTimeoutMs": 600000 },
+    "transcribe": { "desc": "Audio/video -> verbatim transcript + targeted quote verification (the project's core use). Upload media via command.uploads, then prompt.", "activate": "Open insert/upload control; file_upload each media file; wait until each attachment is ready.", "expectFiles": false, "settleTimeoutMs": 1200000 },
+    "long_context": { "desc": "Large-document review (AI Studio's big context window). Upload the doc(s), then prompt.", "activate": "Upload via the insert control.", "expectFiles": false, "settleTimeoutMs": 900000 }
+  },
+  "promptSyntax": { "notes": "System instructions can be set in the right panel but prefer inline framing for one-off turns. One task per turn.", "maxPromptChars": 1000000, "modeWrapper": {} },
+  "settle": { "streamingSignal": "a Stop control present / the Run button disabled => still generating", "doneSignal": "the Run button re-enabled AND the last response stops growing", "quiesceMs": 1200, "timeoutMsDefault": 600000 },
+  "selectors": {
+    "composer": "ms-prompt-box textarea, ms-autosize-textarea textarea, textarea",
+    "runBtn": "NO aria-label — driver matches by visible text /^Run/; CSS fallback: ms-run-button button, run-button button",
+    "stopBtn": "button[aria-label*=\"Stop\" i], button.stop-button",
+    "assistantTurn": "ms-chat-turn",
+    "toolsBtn": "button[aria-label=\"Open tools menu\"]",
+    "uploadBtn": "button[aria-label*=\"Insert\" i], button[aria-label*=\"Upload\" i], button[aria-label*=\"add\" i], input[type=\"file\"]",
+    "modelPicker": "button[aria-label*=\"model\" i], ms-model-selector button",
+    "newChat": "button[aria-label=\"New chat\"], a[href*=\"new_chat\"]",
+    "downloadLink": "a[download], a[href^=\"blob:\"]"
+  },
+  "downloads": "Files land in the OS Downloads dir; connector returns the name, Code resolves the newest match.",
+  "warnings": "Angular Material, ms-* custom elements. The Run button has NO aria-label — match by visible text 'Run' or submit with Ctrl+Enter. Insert into the <textarea> via the native value setter + an 'input' event (Angular ignores el.value=...). ms-chat-turn innerText carries Material icon ligatures (more_vert/thumb_up/thumb_down) — strip them (the driver's lastText does).",
+  "verified_2026_06_25": "Live-tested in an authenticated browser. CONFIRMED: composer 'ms-prompt-box textarea'; insert via native value-setter + input event; submit via Ctrl+Enter (real key) OR clicking the text-'Run' button; responses in 'ms-chat-turn'; CLEAN settle = Run re-enabled AND no Stop; per-prompt permalink /prompts/<id> is the warm-thread id. CORRECTED: prior best-effort runBtn 'button[aria-label*=Run]' does NOT match (Run has no aria-label). NOT yet exercised: the multimodal upload control (transcribe mode) - calibrate it on the first media run.",
+  "routing": { "blocksSensitive": true, "warnOnSensitive": true, "warnBanner": "SENSITIVE DATA: external free-tier processing may retain or train on submitted data. Require current explicit approval.", "localFreeAlternative": "Use an approved on-device transcription tool when available." }
+}

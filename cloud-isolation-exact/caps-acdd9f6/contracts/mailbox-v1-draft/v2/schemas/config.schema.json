@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bridge.local/contracts/mailbox-v1-draft/v2/schemas/config.schema.json",
+  "title": "Bridge Mailbox v2 Local Configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "stateDirectory", "databasePath", "auditMirrorPath", "exchangeRoot", "broker", "providers", "delivery", "integrations"],
+  "properties": {
+    "schemaVersion": { "const": "bridge-mailbox-config-v2" },
+    "stateDirectory": { "type": "string", "minLength": 3 },
+    "databasePath": { "type": "string", "minLength": 3 },
+    "auditMirrorPath": { "type": "string", "minLength": 3 },
+    "exchangeRoot": { "type": "string", "minLength": 3 },
+    "broker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["host", "port", "tokenFile", "allowedOrigins"],
+      "properties": {
+        "host": { "enum": ["127.0.0.1", "::1"] },
+        "port": { "type": "integer", "minimum": 1024, "maximum": 65535 },
+        "tokenFile": { "type": "string", "minLength": 3 },
+        "allowedOrigins": { "type": "array", "items": { "type": "string", "format": "uri" }, "uniqueItems": true }
+      }
+    },
+    "providers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["chatgpt", "antigravity"],
+      "properties": {
+        "chatgpt": { "$ref": "#/$defs/providerConfig" },
+        "antigravity": { "$ref": "#/$defs/providerConfig" }
+      }
+    },
+    "delivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["leaseMs", "heartbeatExtensionMs", "pollIntervalMs", "defaultExpiryMs", "maxPreDispatchAttempts"],
+      "properties": {
+        "leaseMs": { "type": "integer", "minimum": 30000 },
+        "heartbeatExtensionMs": { "type": "integer", "minimum": 30000 },
+        "pollIntervalMs": { "type": "integer", "minimum": 1000 },
+        "defaultExpiryMs": { "type": "integer", "minimum": 30000 },
+        "maxPreDispatchAttempts": { "type": "integer", "minimum": 1, "maximum": 20 }
+      }
+    },
+    "integrations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["chromeExtensionDirectory", "antigravityPluginDirectory"],
+      "properties": {
+        "chromeExtensionDirectory": { "type": "string", "minLength": 3 },
+        "antigravityPluginDirectory": { "type": "string", "minLength": 3 }
+      }
+    }
+  },
+  "$defs": {
+    "providerConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "consumerId"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "consumerId": { "$ref": "common.schema.json#/$defs/identifier" }
+      }
+    }
+  }
+}

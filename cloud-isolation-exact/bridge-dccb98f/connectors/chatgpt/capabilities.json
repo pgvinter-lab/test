@@ -1,0 +1,65 @@
+{
+  "id": "chatgpt-web",
+  "surface": "chatgpt",
+  "displayName": "ChatGPT (web, owned tab)",
+  "transport": "claude-in-chrome",
+  "baseUrl": "https://chatgpt.com/",
+  "newChatUrl": "https://chatgpt.com/",
+  "ownership": {
+    "matchUrl": "https://chatgpt.com/*",
+    "titleMarker": "chatgpt",
+    "stateKey": "chatgpt"
+  },
+  "loginCheck": "window.__CONN.loggedIn() — the composer is present only when signed in. A login wall => return error login_required.",
+  "abilities": {
+    "default": {
+      "desc": "Standard chat turn.",
+      "activate": "none",
+      "expectFiles": false,
+      "settleTimeoutMs": 600000
+    },
+    "deep_research": {
+      "desc": "Long, multi-source researched report. UI-ONLY — no API equivalent. This is the headline reason to own a ChatGPT tab.",
+      "activate": "Open the composer '+' / tools menu and select 'Deep research' before sending. It usually asks 1-2 scoping questions; if command.unattended, reply 'proceed with reasonable assumptions'.",
+      "expectFiles": false,
+      "settleTimeoutMs": 2400000
+    },
+    "canvas": {
+      "desc": "Canvas doc/code editor for iterative long-form artifacts.",
+      "activate": "Tools menu -> Canvas, or ask 'open this in canvas'.",
+      "expectFiles": false,
+      "settleTimeoutMs": 900000
+    },
+    "code_files": {
+      "desc": "Advanced Data Analysis emits downloadable files (csv/xlsx/zip/png).",
+      "activate": "Ask it to produce the file and give a download link.",
+      "expectFiles": true,
+      "settleTimeoutMs": 900000
+    }
+  },
+  "promptSyntax": {
+    "notes": "No system prompt over the UI — put role/framing inline at the top of the message. One task per turn keeps scraping clean. For deep_research lead with the question, then scope, then the deliverable shape.",
+    "maxPromptChars": 30000,
+    "modeWrapper": {
+      "deep_research": "Research question: {prompt}\nScope & constraints: {scope}\nDeliverable: a cited report with sources inline."
+    }
+  },
+  "settle": {
+    "streamingSignal": "[data-testid=\"stop-button\"] present means still generating",
+    "doneSignal": "[data-testid=\"send-button\"] present AND copy/regenerate controls on the last turn",
+    "quiesceMs": 800,
+    "timeoutMsDefault": 600000
+  },
+  "selectors": {
+    "composer": "#prompt-textarea, div[contenteditable=\"true\"]",
+    "toolsBtn": "[data-testid=\"composer-plus-btn\"]",
+    "sendBtn": "[data-testid=\"send-button\"]",
+    "stopBtn": "[data-testid=\"stop-button\"]",
+    "assistantTurn": "[data-message-author-role=\"assistant\"]",
+    "newChat": "a[href=\"/\"], button[aria-label*=\"New chat\" i]",
+    "downloadLink": "a[download], a[href^=\"blob:\"]"
+  },
+  "downloads": "Files land in the OS Downloads dir; connector returns the name, Code resolves the newest match.",
+  "warnings": "Selectors and the Deep Research menu path drift — verify against the live DOM and re-anchor here when they break.",
+  "verified_2026_06_25": "Live-tested OK. #prompt-textarea, send-button, and composer-plus-btn (aria 'Add files and more') all confirmed. Insert text with document.execCommand('insertText') — the CDP 'type' action froze the renderer (~30s timeout). Enable Deep Research AFTER inserting text: selectAll+insertText clears the active tool. The Deep Research plan / 'Researching…' turn is NOT tagged data-message-author-role=assistant while running, so isSettled needs a long timeout plus a get_page_text/plan-card fallback."
+}

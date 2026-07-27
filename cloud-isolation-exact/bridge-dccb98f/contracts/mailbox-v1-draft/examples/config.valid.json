@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "bridge-mailbox-config-v1",
+  "stateDirectory": "C:\\Users\\example\\AppData\\Local\\Bridge2\\mailbox",
+  "databasePath": "C:\\Users\\example\\AppData\\Local\\Bridge2\\mailbox\\mailbox.sqlite",
+  "auditMirrorPath": "C:\\Users\\example\\AppData\\Local\\Bridge2\\mailbox\\mailbox-audit.jsonl",
+  "exchangeRoot": "C:\\Users\\example\\My Drive\\Bridge Exchange",
+  "broker": {
+    "host": "127.0.0.1",
+    "port": 7319,
+    "tokenFile": "C:\\Users\\example\\AppData\\Local\\Bridge2\\mailbox\\broker-token.txt",
+    "allowedOrigins": []
+  },
+  "providers": {
+    "chatgpt": { "enabled": true, "consumerId": "provider.chatgpt.web" },
+    "gemini": { "enabled": true, "consumerId": "provider.gemini.web" }
+  },
+  "delivery": {
+    "leaseMs": 900000,
+    "heartbeatExtensionMs": 300000,
+    "pollIntervalMs": 5000,
+    "defaultExpiryMs": 86400000,
+    "maxPreDispatchAttempts": 3
+  },
+  "integrations": {
+    "chromeExtensionDirectory": "C:\\Users\\example\\AppData\\Local\\Bridge2\\mailbox\\chrome-extension",
+    "geminiExtensionDirectory": "C:\\Users\\example\\AppData\\Local\\Bridge2\\mailbox\\bridge-mailbox"
+  }
+}

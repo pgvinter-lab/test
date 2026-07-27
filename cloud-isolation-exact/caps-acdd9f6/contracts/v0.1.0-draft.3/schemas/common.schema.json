@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json",
+  "title": "Bridge 2.0 Draft Common Definitions",
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "principalRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["principalId", "sessionId", "hostId"],
+      "properties": {
+        "principalId": {
+          "type": "string",
+          "$ref": "#/$defs/identifier",
+          "pattern": "^principal\\."
+        },
+        "sessionId": {
+          "type": "string",
+          "$ref": "#/$defs/identifier",
+          "pattern": "^session\\."
+        },
+        "hostId": {
+          "type": "string",
+          "$ref": "#/$defs/identifier",
+          "pattern": "^host\\."
+        }
+      }
+    },
+    "instructionSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "instructionSetId",
+        "version",
+        "text",
+        "contentHash",
+        "authoredBy",
+        "authoredAt",
+        "materialAmendment",
+        "invalidatesApprovalGrantIds"
+      ],
+      "properties": {
+        "instructionSetId": { "$ref": "#/$defs/identifier" },
+        "version": { "type": "integer", "minimum": 1 },
+        "text": { "type": "string", "minLength": 1, "maxLength": 16000 },
+        "contentHash": { "$ref": "#/$defs/sha256" },
+        "authoredBy": { "$ref": "#/$defs/principalRef" },
+        "authoredAt": { "$ref": "#/$defs/timestamp" },
+        "materialAmendment": { "type": "boolean" },
+        "supersedesVersion": { "type": "integer", "minimum": 1 },
+        "invalidatesApprovalGrantIds": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/identifier" },
+          "uniqueItems": true
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "version": { "type": "integer", "minimum": 2 } } },
+          "then": {
+            "properties": { "supersedesVersion": true },
+            "required": ["supersedesVersion"]
+          }
+        }
+      ]
+    },
+    "approvalPolicyOverride": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "overrideId",
+        "invokedBy",
+        "invokedAt",
+        "reason",
+        "scope",
+        "immutableAfterCreation",
+        "nonRetroactive",
+        "preservedControls"
+      ],
+      "properties": {
+        "overrideId": { "$ref": "#/$defs/identifier" },
+        "invokedBy": { "$ref": "#/$defs/principalRef" },
+        "invokedAt": { "$ref": "#/$defs/timestamp" },
+        "reason": { "type": "string", "minLength": 1, "maxLength": 2000 },
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["jobId", "overriddenRules"],
+          "properties": {
+            "jobId": { "$ref": "#/$defs/identifier" },
+            "overriddenRules": {
+              "type": "array",
+              "const": ["M-3", "L-4"]
+            }
+          }
+        },
+        "immutableAfterCreation": { "const": true },
+        "nonRetroactive": { "const": true },
+        "preservedControls": {
+          "type": "array",
+          "const": [
+            "principal_role_authorization",
+            "claim_generation_fencing",
+            "adapter_allowlists",
+            "credential_isolation",
+            "unrelated_security_controls"
+          ]
+        }
+      }
+    },
+    "disagreement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["disagreementId", "position", "disposition", "reason"],
+      "properties": {
+        "disagreementId": { "$ref": "#/$defs/identifier" },
+        "position": { "type": "string", "minLength": 1, "maxLength": 4000 },
+        "disposition": {
+          "enum": ["accepted", "rejected", "unresolved", "owner_decision_required"]
+        },
+        "reason": { "type": "string", "minLength": 1, "maxLength": 4000 },
+        "raisedBy": { "$ref": "#/$defs/principalRef" },
+        "relatedArtifactIds": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/identifier" },
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

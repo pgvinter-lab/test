@@ -1,0 +1,16 @@
+{
+  "artifacts": {
+    "src/caps/cli.ts": {
+      "generation_method": "reasoned"
+    },
+    "test/caps/cli.test.mjs": {
+      "generation_method": "reasoned"
+    }
+  },
+  "floor_arithmetic": {
+    "subcommands": 5,
+    "refresh_lane_values": 4,
+    "stable_outcomes": 7,
+    "named_tests": 13
+  }
+}

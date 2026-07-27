@@ -1,0 +1,68 @@
+{
+  "name": "codex-claude-bridge",
+  "version": "0.2.0",
+  "description": "Coordinate OpenAI Codex CLI and Claude Code on shared projects: file leases, control handoff, a cross-project activity ledger, and git+Drive backup/restore.",
+  "type": "module",
+  "bin": {
+    "bridge": "dist/cli.js",
+    "bridge-v2": "dist/v2/cli/main.js",
+    "bridge-mailbox": "dist/v2/mailbox/cli.js"
+  },
+  "main": "dist/server.js",
+  "exports": {
+    ".": "./dist/server.js",
+    "./v2": {
+      "types": "./dist/v2/index.d.ts",
+      "import": "./dist/v2/index.js",
+      "default": "./dist/v2/index.js"
+    },
+    "./dist/*": "./dist/*"
+  },
+  "typesVersions": {
+    "*": {
+      "v2": [
+        "dist/v2/index.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist",
+    "integrations",
+    "migrations",
+    "contracts/v0.1.0-draft.4",
+    "contracts/mailbox-v1-draft"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "test": "node test/e2e.mjs && node test/mcp-smoke.mjs && node test/session.mjs && node test/fixes.mjs",
+    "e2e": "node test/e2e.mjs",
+    "mcp-smoke": "node test/mcp-smoke.mjs",
+    "fixes": "node test/fixes.mjs",
+    "connectors-test": "node test/connectors.mjs",
+    "contract-test": "node test/contract/node-sqlite.mjs && node test/contract/schemas.mjs && node test/contract/mailbox-schemas.mjs && node test/contract/mock-client.mjs",
+    "test:agy-cli-smoke": "node test/smoke/agy-cli-smoke.mjs",
+    "test:a2a-canary": "npm run build && node test/smoke/a2a-canary.mjs",
+    "test:a2a-live-canary-syntax": "node --check scripts/cutover/Invoke-A2ALiveCanary.mjs",
+    "test:cutover-harness": "node --test test/smoke/cutover-harness.test.mjs",
+    "test:runtime": "node --test \"test/runtime/**/*.test.mjs\"",
+    "test:wal-race": "npm run build && node test/runtime/wal-race-stress.mjs",
+    "test:mailbox": "npm run build && node --test \"test/mailbox/**/*.test.mjs\" && node --check integrations/chrome-mailbox/background.js && node --check integrations/chrome-mailbox/content.js && node --check integrations/chrome-mailbox/popup.js",
+    "test:all": "npm run build && npm test && npm run connectors-test && npm run contract-test && npm run test:a2a-live-canary-syntax && npm run test:cutover-harness && npm run test:runtime && npm run test:wal-race && npm run test:mailbox",
+    "prepack": "npm run build",
+    "catalog-sync": "node dist/cli.js catalog refresh"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.11.0",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "typescript": "^5.5.0"
+  }
+}

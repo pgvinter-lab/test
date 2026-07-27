@@ -1,0 +1,229 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/audit-mirror-entry.schema.json",
+  "title": "Bridge 2.0 Draft Non-Operational Audit Mirror Entry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "mirrorSequence",
+    "mirroredAt",
+    "event",
+    "instructionSets",
+    "approvals",
+    "actions",
+    "outcomes",
+    "citations",
+    "excludedContentClasses",
+    "hashAlgorithm",
+    "mirrorHash"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "0.1.0-draft.3" },
+    "mirrorSequence": { "type": "integer", "minimum": 1 },
+    "mirroredAt": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/timestamp"
+    },
+    "event": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/event.schema.json"
+    },
+    "instructionSets": {
+      "type": "array",
+      "items": {
+        "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/instructionSet"
+      }
+    },
+    "approvals": {
+      "type": "array",
+      "items": {
+        "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/approval-grant.schema.json"
+      }
+    },
+    "actions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/action" }
+    },
+    "outcomes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/outcome" }
+    },
+    "citations": {
+      "type": "array",
+      "items": {
+        "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/artifact.schema.json#/$defs/citation"
+      }
+    },
+    "excludedContentClasses": {
+      "type": "array",
+      "const": ["browser_state", "credentials", "raw_artifact_contents", "secrets"]
+    },
+    "previousMirrorHash": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/sha256"
+    },
+    "hashAlgorithm": { "const": "sha256-bridge-audit-cjson-v1" },
+    "mirrorHash": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/sha256"
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "mirrorSequence": { "const": 1 } } },
+      "then": {
+        "not": {
+          "properties": { "previousMirrorHash": true },
+          "required": ["previousMirrorHash"]
+        }
+      }
+    },
+    {
+      "if": { "properties": { "mirrorSequence": { "type": "integer", "minimum": 2 } } },
+      "then": {
+        "properties": { "previousMirrorHash": true },
+        "required": ["previousMirrorHash"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event": {
+            "type": "object",
+            "properties": { "eventType": { "type": "string", "pattern": "^review_job\\." } },
+            "required": ["eventType"]
+          }
+        },
+        "required": ["event"]
+      },
+      "then": {
+        "properties": { "instructionSets": { "type": "array", "minItems": 1 } }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event": {
+            "type": "object",
+            "properties": { "eventType": { "type": "string", "pattern": "^approval_grant\\." } },
+            "required": ["eventType"]
+          }
+        },
+        "required": ["event"]
+      },
+      "then": {
+        "properties": { "approvals": { "type": "array", "minItems": 1 } }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event": {
+            "type": "object",
+            "properties": { "eventType": { "const": "browser.authorization_decided" } },
+            "required": ["eventType"]
+          }
+        },
+        "required": ["event"]
+      },
+      "then": {
+        "properties": {
+          "actions": { "type": "array", "minItems": 1 },
+          "outcomes": { "type": "array", "minItems": 1 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event": {
+            "type": "object",
+            "properties": { "eventType": { "const": "review_job.completed" } },
+            "required": ["eventType"]
+          }
+        },
+        "required": ["event"]
+      },
+      "then": {
+        "properties": { "outcomes": { "type": "array", "minItems": 1 } }
+      }
+    }
+  ],
+  "$defs": {
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "actionId",
+        "adapterId",
+        "operation",
+        "sideEffectClass",
+        "origin",
+        "destination",
+        "conditionHash",
+        "authorizationDecision"
+      ],
+      "properties": {
+        "actionId": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier"
+        },
+        "adapterId": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier"
+        },
+        "operation": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "sideEffectClass": {
+          "enum": ["read_only", "local_write", "external_reversible", "external_irreversible"]
+        },
+        "origin": { "type": "string", "format": "uri-reference", "minLength": 1 },
+        "destination": { "type": "string", "format": "uri-reference", "minLength": 1 },
+        "conditionHash": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/sha256"
+        },
+        "approvalPromptClass": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "authorizationDecision": { "enum": ["allow", "ask", "deny"] },
+        "approvalGrantId": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier"
+        },
+        "approvalPolicyOverrideId": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier"
+        },
+        "overriddenRulesApplied": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "enum": ["M-3", "L-4"] },
+          "uniqueItems": true
+        }
+      }
+    },
+    "outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["outcomeId", "status", "detailHash", "artifactIds"],
+      "properties": {
+        "outcomeId": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier"
+        },
+        "status": {
+          "enum": [
+            "authorized",
+            "approval_required",
+            "denied",
+            "succeeded",
+            "failed",
+            "review_accepted",
+            "review_changes_requested",
+            "review_rejected",
+            "review_inconclusive"
+          ]
+        },
+        "detailHash": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/sha256"
+        },
+        "artifactIds": {
+          "type": "array",
+          "items": {
+            "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier"
+          },
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

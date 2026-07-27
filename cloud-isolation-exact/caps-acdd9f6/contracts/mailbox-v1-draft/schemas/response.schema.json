@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bridge.local/contracts/mailbox-v1-draft/schemas/response.schema.json",
+  "title": "Bridge Provider Mailbox Response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "responseId", "messageId", "deliveryId", "projectId", "provider", "consumerId", "createdAt", "responseSha256", "response"],
+  "properties": {
+    "schemaVersion": { "const": "bridge-mailbox-v1" },
+    "kind": { "const": "response" },
+    "responseId": { "type": "string", "$ref": "common.schema.json#/$defs/identifier", "pattern": "^mailbox\\.response\\." },
+    "messageId": { "type": "string", "$ref": "common.schema.json#/$defs/identifier", "pattern": "^mailbox\\.message\\." },
+    "deliveryId": { "type": "string", "$ref": "common.schema.json#/$defs/identifier", "pattern": "^mailbox\\.delivery\\." },
+    "projectId": { "type": "string", "minLength": 3, "maxLength": 300 },
+    "provider": { "$ref": "common.schema.json#/$defs/provider" },
+    "consumerId": { "$ref": "common.schema.json#/$defs/identifier" },
+    "createdAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+    "responseSha256": { "$ref": "common.schema.json#/$defs/sha256" },
+    "response": { "type": "string", "minLength": 1, "maxLength": 1048576 },
+    "conversationUrl": { "type": "string", "format": "uri", "pattern": "^https://(chatgpt\\.com|gemini\\.google\\.com)/" }
+  }
+}

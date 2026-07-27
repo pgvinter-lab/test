@@ -1,0 +1,33 @@
+{
+  "reason": "Quarantined during CAPS 08B Remediation Round 6; source debug hunk preserved before restoration and root test residue moved without deletion.",
+  "files": [
+    {
+      "name": "stdio-probe-telemetry-21492.json",
+      "sha256": "66c479609c29f5b521c0a2417e85a8dbeb64c721c71790a7cd7e92d250269706"
+    },
+    {
+      "name": "stdio-probe-telemetry-28556.json",
+      "sha256": "3c633b707de52cd3adf32a16680e584cd7793cfad876b9e54651c0a8f4715ff5"
+    },
+    {
+      "name": "debug.cjs",
+      "sha256": "b7e4eaeeb218a6e8b6cd8adc9d5f979819b1c345e308ed4391e98c8e2db07207",
+      "bytes": 2637
+    },
+    {
+      "name": "run_gates.ps1",
+      "sha256": "1720912b76842e399594048c43dec5deedc3fe626c661e8493dbafbbc26c39ff",
+      "bytes": 3593
+    },
+    {
+      "name": "refresh.lock",
+      "sha256": "a137e2a404cc22295ad4aa418e4077ff221121c38dda6fa2d4920e48eb15e4d9",
+      "bytes": 115
+    },
+    {
+      "name": "unauthorized-fetch-policy-debug.patch",
+      "source_blob_before_restore": "8700c3f0ead457dad1e673f57900d3c925b37b48",
+      "expected_head_blob": "253d4d3aa8e162df37f68ec8e50ec355334e1a48"
+    }
+  ]
+}

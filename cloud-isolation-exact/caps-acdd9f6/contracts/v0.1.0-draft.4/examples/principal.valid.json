@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "0.1.0-draft.4",
+  "principal": {
+    "principalId": "principal.reviewer",
+    "kind": "agent",
+    "displayName": "Independent Review Agent",
+    "issuer": "local-bridge",
+    "subject": "agent:reviewer",
+    "status": "active",
+    "roles": [
+      {
+        "scope": "project",
+        "projectId": "project.demo",
+        "role": "reviewer"
+      }
+    ],
+    "createdAt": "2026-07-12T12:00:00Z"
+  },
+  "session": {
+    "sessionId": "session.review.001",
+    "principalId": "principal.reviewer",
+    "hostId": "host.demo",
+    "startedAt": "2026-07-12T12:00:00Z",
+    "expiresAt": "2026-07-12T20:00:00Z",
+    "status": "active",
+    "authentication": {
+      "method": "local_process",
+      "assurance": "local"
+    },
+    "transportBinding": {
+      "transport": "stdio",
+      "transportSessionId": "stdio-session-review-001",
+      "serverInstanceId": "instance.server.001"
+    }
+  },
+  "host": {
+    "hostId": "host.demo",
+    "instanceId": "instance.demo.001",
+    "hostnameHash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "platform": "windows",
+    "status": "active",
+    "registeredAt": "2026-07-12T12:00:00Z"
+  }
+}

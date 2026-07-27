@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "0.1.0-draft.3",
+  "grantId": "approval.browser.001",
+  "projectId": "project.demo",
+  "status": "active",
+  "grantedBy": {
+    "principalId": "principal.owner",
+    "sessionId": "session.owner.001",
+    "hostId": "host.demo"
+  },
+  "grantedTo": {
+    "principalId": "principal.worker",
+    "sessionId": "session.worker.001",
+    "hostId": "host.demo"
+  },
+  "requiredRole": "worker",
+  "grantedAt": "2026-07-12T12:00:00Z",
+  "expiresAt": "2026-07-12T13:00:00Z",
+  "scope": {
+    "jobId": "job.review.001",
+    "adapterIds": ["adapter.browser.synthetic"],
+    "actions": ["browser.compose", "approval_prompt.respond"],
+    "conditions": [
+      { "name": "artifact_class", "operator": "equals", "value": "synthetic" }
+    ],
+    "destinations": ["https://example.invalid/drafts"],
+    "origins": ["https://example.invalid"],
+    "sideEffectClasses": ["external_reversible"],
+    "approvalPromptClasses": ["confirm_save_draft"],
+    "maxUses": 3
+  },
+  "claimBinding": {
+    "claimId": "claim.review.001",
+    "generation": 1,
+    "fencingToken": 1
+  },
+  "instructionBinding": {
+    "instructionSetId": "instructions.review.001",
+    "version": 1,
+    "contentHash": "39b871abf7ccb4566d7b40c15e84f85440b7e52a6f76c32227b2390f6b601f59"
+  },
+  "usesConsumed": 0,
+  "defaultOnNoMatch": "ask"
+}

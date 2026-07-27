@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bridge Mailboxes</title>
+    <style>
+      body { width: 280px; margin: 0; padding: 14px; font: 13px/1.4 system-ui, sans-serif; color: #171717; background: #f7f7f5; }
+      h1 { margin: 0 0 12px; font-size: 16px; letter-spacing: 0; }
+      dl { display: grid; grid-template-columns: 80px 1fr; gap: 6px; margin: 0 0 12px; }
+      dt { color: #666; } dd { margin: 0; overflow-wrap: anywhere; }
+      label { display: flex; align-items: center; gap: 8px; border-top: 1px solid #ddd; padding-top: 10px; }
+      #error { color: #a11616; }
+    </style>
+  </head>
+  <body>
+    <h1>Bridge Mailboxes</h1>
+    <dl>
+      <dt>Last poll</dt><dd id="poll">Never</dd>
+      <dt>Completed</dt><dd id="completed">None</dd>
+      <dt>Status</dt><dd id="error">Ready</dd>
+    </dl>
+    <label><input id="paused" type="checkbox"> Pause delivery</label>
+    <script src="popup.js"></script>
+  </body>
+</html>

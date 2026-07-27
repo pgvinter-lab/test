@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bridge.local/contracts/mailbox-v1-draft/schemas/message.schema.json",
+  "title": "Bridge Provider Mailbox Message",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "messageId", "projectId", "sender", "recipient", "mode", "priority", "sensitivity", "createdAt", "expiresAt", "promptSha256", "prompt", "dispatchAuthorization"],
+  "properties": {
+    "schemaVersion": { "const": "bridge-mailbox-v1" },
+    "kind": { "const": "message" },
+    "messageId": { "type": "string", "$ref": "common.schema.json#/$defs/identifier", "pattern": "^mailbox\\.message\\." },
+    "projectId": { "type": "string", "minLength": 3, "maxLength": 300 },
+    "sender": { "$ref": "common.schema.json#/$defs/identity" },
+    "recipient": { "$ref": "common.schema.json#/$defs/provider" },
+    "mode": { "const": "default" },
+    "priority": { "enum": ["normal", "high"] },
+    "sensitivity": { "enum": ["public", "internal"] },
+    "createdAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+    "expiresAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+    "promptSha256": { "$ref": "common.schema.json#/$defs/sha256" },
+    "prompt": { "type": "string", "minLength": 1, "maxLength": 1048576 },
+    "dispatchAuthorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["approvalRef", "authorizedAt", "expiresAt", "provider", "origin", "useCount"],
+      "properties": {
+        "approvalRef": { "$ref": "common.schema.json#/$defs/identifier" },
+        "authorizedAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+        "expiresAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+        "provider": { "$ref": "common.schema.json#/$defs/provider" },
+        "origin": { "enum": ["https://chatgpt.com", "https://gemini.google.com"] },
+        "useCount": { "const": 1 }
+      }
+    }
+  }
+}

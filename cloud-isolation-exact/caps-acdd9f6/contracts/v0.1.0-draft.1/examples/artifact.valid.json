@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "0.1.0-draft.1",
+  "artifactId": "artifact.review.001",
+  "projectId": "project.demo",
+  "kind": "review",
+  "createdAt": "2026-07-12T12:30:00Z",
+  "createdBy": {
+    "principalId": "principal.reviewer",
+    "sessionId": "session.review.001",
+    "hostId": "host.demo"
+  },
+  "sensitivity": "internal",
+  "content": {
+    "mediaType": "text/markdown",
+    "sizeBytes": 1200,
+    "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+  },
+  "locations": [
+    {
+      "storageClass": "local",
+      "uri": "file:///C:/bridge2/reviews/review-001.md",
+      "encrypted": false
+    }
+  ],
+  "provenance": {
+    "origin": "agent",
+    "parentArtifactIds": ["artifact.contract.001"],
+    "captureMethod": "independent architecture review",
+    "tool": "claude-code"
+  },
+  "citations": [
+    {
+      "citationId": "citation.review.001",
+      "sourceArtifactId": "artifact.contract.001",
+      "locator": {
+        "type": "section",
+        "value": "Review job lifecycle"
+      },
+      "claim": "A claim must carry a generation and fencing token.",
+      "verification": {
+        "status": "verified",
+        "method": "direct contract inspection",
+        "verifiedBy": {
+          "principalId": "principal.reviewer",
+          "sessionId": "session.review.001",
+          "hostId": "host.demo"
+        },
+        "verifiedAt": "2026-07-12T12:30:00Z"
+      }
+    }
+  ],
+  "retention": {
+    "policy": "project"
+  }
+}

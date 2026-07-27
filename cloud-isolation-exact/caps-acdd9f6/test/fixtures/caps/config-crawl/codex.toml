@@ -1,0 +1,49 @@
+# Codex configuration file test fixture
+# This fixture tests proper parsing of standard TOML declarations for MCP servers.
+# It ensures that quoted keys are handled correctly and that credentials in arguments
+# are correctly identified and redacted by the config-crawl lane.
+# This file serves to ensure robustness against broken configs.
+
+[mcp_servers.test_server_1]
+command = "npx"
+args = ["-y", "some-package", "--token", "codex_secret_token_1"]
+enabled = true
+
+[mcp_servers."quoted-name"]
+command = "node"
+args = ["quoted.js"]
+enabled = true
+
+[mcp_servers.test_server_2]
+command = "python"
+args = ["-m", "my_module"]
+url = "http://localhost:8000/mcp"
+enabled = false
+
+[mcp_servers.test_server_3]
+command = "go"
+args = ["run", ".", "--api-key=codex_api_key_999"]
+enabled = true
+
+[mcp_servers.unsupported_syntax]
+command = "node"
+args = { "foo" = "bar" }
+enabled = true
+
+[mcp_servers.another_unsupported]
+command = "test"
+args = ["a"]
+extra_field = """
+some multi
+line string
+"""
+
+[mcp_servers."quoted-key-trap"]
+command = "ruby"
+args = ["--password", "super_secret_ruby_trap_123"]
+enabled = true
+
+[mcp_servers."another-trap"]
+command = "php"
+args = ["script.php", "--cookie", "session_cookie_secret_val"]
+enabled = true

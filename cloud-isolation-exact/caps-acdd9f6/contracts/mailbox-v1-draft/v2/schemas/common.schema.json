@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bridge.local/contracts/mailbox-v1-draft/v2/schemas/common.schema.json",
+  "title": "Bridge Mailbox v2 Common Definitions",
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 180,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "provider": { "enum": ["chatgpt", "antigravity"] },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["principalId", "sessionId", "hostId"],
+      "properties": {
+        "principalId": { "$ref": "#/$defs/identifier" },
+        "sessionId": { "$ref": "#/$defs/identifier" },
+        "hostId": { "$ref": "#/$defs/identifier" }
+      }
+    },
+    "chatgptDestination": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "origin"],
+      "properties": {
+        "kind": { "const": "browser-origin" },
+        "origin": { "const": "https://chatgpt.com" }
+      }
+    },
+    "antigravityDestination": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "surface"],
+      "properties": {
+        "kind": { "const": "local-mcp" },
+        "surface": { "const": "antigravity" }
+      }
+    },
+    "destination": {
+      "oneOf": [
+        { "$ref": "#/$defs/chatgptDestination" },
+        { "$ref": "#/$defs/antigravityDestination" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "0.1.0-draft.1",
+  "backupId": "backup.demo.001",
+  "projectId": "project.demo",
+  "contractVersion": "0.1.0-draft.1",
+  "backupType": "full",
+  "generation": 1,
+  "createdAt": "2026-07-12T13:00:00Z",
+  "createdBy": {
+    "principalId": "principal.owner",
+    "sessionId": "session.owner.001",
+    "hostId": "host.demo"
+  },
+  "sourceHostId": "host.demo",
+  "sourceCommit": "68ac195d1f6cc86d048a570bb053350419e7dbe5",
+  "dirty": false,
+  "consistency": {
+    "quiesced": true,
+    "eventSequence": 42,
+    "databaseCheckpoint": "sqlite-checkpoint-42"
+  },
+  "contents": [
+    {
+      "name": "source.bundle",
+      "kind": "git_bundle",
+      "sizeBytes": 2048,
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "sensitivity": "internal"
+    },
+    {
+      "name": "state.snapshot.enc",
+      "kind": "state_snapshot",
+      "sizeBytes": 4096,
+      "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+      "sensitivity": "confidential"
+    }
+  ],
+  "encryption": {
+    "mode": "aes-256-gcm",
+    "keyRef": "os-keychain://bridge2/backup"
+  },
+  "destinations": [
+    {
+      "kind": "drive",
+      "uri": "file:///C:/Drive/Bridge2Recovery/backups/backup.demo.001",
+      "status": "pending"
+    }
+  ]
+}

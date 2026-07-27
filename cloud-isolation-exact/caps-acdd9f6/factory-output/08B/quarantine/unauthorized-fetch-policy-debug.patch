@@ -1,0 +1,12 @@
+diff --git a/src/caps/fetch-policy.ts b/src/caps/fetch-policy.ts
+index 253d4d3..8700c3f 100644
+--- a/src/caps/fetch-policy.ts
++++ b/src/caps/fetch-policy.ts
+@@ -330,6 +330,7 @@ export async function fetchWithPolicy(
+         throw abortError();
+       }
+       if (nonRetryable(error)) throw error;
++      console.error("CAUGHT RETRYABLE:", error);
+       if (attempt > MAX_RETRIES) {
+         throw new Error("fetch_policy_network_retries_exhausted");
+       }

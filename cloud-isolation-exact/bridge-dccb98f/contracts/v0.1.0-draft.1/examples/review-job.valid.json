@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "0.1.0-draft.1",
+  "jobId": "job.review.001",
+  "projectId": "project.demo",
+  "mode": "independent_review",
+  "status": "claimable",
+  "requestedBy": {
+    "principalId": "principal.owner",
+    "sessionId": "session.owner.001",
+    "hostId": "host.demo"
+  },
+  "requiredRole": "reviewer",
+  "independence": {
+    "policy": "required",
+    "excludedPrincipalIds": ["principal.owner", "principal.author"],
+    "provenanceArtifactIds": ["artifact.contract.001"],
+    "evaluatedBy": {
+      "principalId": "principal.policy",
+      "sessionId": "session.policy.001",
+      "hostId": "host.demo"
+    },
+    "evaluatedAt": "2026-07-12T12:00:00Z"
+  },
+  "target": {
+    "contractVersion": "0.1.0-draft.1",
+    "artifactIds": ["artifact.contract.001"],
+    "instructions": "Red-team the draft contract and preserve disagreements.",
+    "acceptanceCriteria": [
+      "Identify security and recovery failure modes.",
+      "Return accepted, rejected, and unresolved findings."
+    ]
+  },
+  "attempt": 0,
+  "createdAt": "2026-07-12T12:00:00Z",
+  "updatedAt": "2026-07-12T12:00:00Z"
+}

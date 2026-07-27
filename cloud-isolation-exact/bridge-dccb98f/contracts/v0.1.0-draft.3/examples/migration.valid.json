@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "0.1.0-draft.3",
+  "migrationId": "migration.001",
+  "fromVersion": "0.1.0",
+  "toVersion": "0.2.0",
+  "checksum": "5555555555555555555555555555555555555555555555555555555555555555",
+  "backupRequired": true,
+  "estimatedDowntimeSeconds": 10,
+  "rollbackClass": "restore_only",
+  "preconditions": [
+    "Source tree is clean.",
+    "Verified pre-migration backup exists."
+  ],
+  "operations": {
+    "apply": "migration.001.apply",
+    "verify": "migration.001.verify"
+  }
+}

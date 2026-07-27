@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/doctor.schema.json",
+  "title": "Bridge 2.0 Draft Doctor Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "runId",
+    "projectId",
+    "hostId",
+    "generation",
+    "runAt",
+    "mode",
+    "overall",
+    "checks"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "0.1.0-draft.3" },
+    "runId": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier"
+    },
+    "projectId": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier"
+    },
+    "hostId": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier"
+    },
+    "generation": { "type": "integer", "minimum": 1 },
+    "runAt": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/timestamp"
+    },
+    "mode": { "enum": ["read_only", "repair_plan"] },
+    "overall": { "enum": ["ready", "degraded", "blocked"] },
+    "checks": {
+      "type": "array",
+      "minItems": 10,
+      "allOf": [
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "category": { "const": "identity" } },
+            "required": ["category"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "category": { "const": "permissions" } },
+            "required": ["category"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "category": { "const": "storage" } },
+            "required": ["category"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "category": { "const": "events" } },
+            "required": ["category"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "category": { "const": "generation" } },
+            "required": ["category"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "category": { "const": "adapter" } },
+            "required": ["category"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "category": { "const": "github" } },
+            "required": ["category"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "category": { "const": "drive" } },
+            "required": ["category"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "category": { "const": "backup" } },
+            "required": ["category"]
+          }
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": { "category": { "const": "secrets" } },
+            "required": ["category"]
+          }
+        }
+      ],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["checkId", "category", "status", "detail"],
+        "properties": {
+          "checkId": {
+            "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier"
+          },
+          "category": {
+            "enum": [
+              "identity",
+              "permissions",
+              "storage",
+              "events",
+              "generation",
+              "adapter",
+              "github",
+              "drive",
+              "backup",
+              "secrets"
+            ]
+          },
+          "status": { "enum": ["pass", "warn", "fail", "skipped"] },
+          "detail": { "type": "string", "minLength": 1, "maxLength": 2000 },
+          "repairAction": { "type": "string", "minLength": 1, "maxLength": 1000 }
+        }
+      }
+    }
+  }
+}

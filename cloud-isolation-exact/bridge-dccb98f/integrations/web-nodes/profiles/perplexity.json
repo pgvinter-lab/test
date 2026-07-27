@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "bridge-web-node-v1",
+  "nodeId": "perplexity",
+  "displayName": "Perplexity",
+  "enabled": true,
+  "origin": "https://www.perplexity.ai",
+  "startUrl": "https://www.perplexity.ai/",
+  "auth": {
+    "mode": "browser-profile",
+    "signInHint": "Use Continue with Google once in the dedicated Bridge browser profile."
+  },
+  "selectors": {
+    "composer": [
+      "textarea[placeholder]",
+      "[contenteditable='true'][role='textbox']",
+      "[contenteditable='true']"
+    ],
+    "submit": [
+      "button[aria-label='Submit']",
+      "button[aria-label*='Ask']",
+      "button[type='submit']"
+    ],
+    "response": [
+      "main [data-testid='answer']",
+      "main [class*='prose']",
+      "main article"
+    ],
+    "busy": [
+      "button[aria-label*='Stop']",
+      "[data-testid*='stop']"
+    ]
+  },
+  "behavior": {
+    "submitMode": "button-or-enter",
+    "responseMode": "last-new-node",
+    "timeoutMs": 720000,
+    "settleMs": 1000,
+    "stablePolls": 5,
+    "maxBytes": 1048576
+  }
+}

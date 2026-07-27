@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bridge2.local/contracts/v0.1.0-draft.1/schemas/common.schema.json",
+  "title": "Bridge 2.0 Draft Common Definitions",
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "principalRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["principalId", "sessionId", "hostId"],
+      "properties": {
+        "principalId": {
+          "type": "string",
+          "$ref": "#/$defs/identifier",
+          "pattern": "^principal\\."
+        },
+        "sessionId": {
+          "type": "string",
+          "$ref": "#/$defs/identifier",
+          "pattern": "^session\\."
+        },
+        "hostId": {
+          "type": "string",
+          "$ref": "#/$defs/identifier",
+          "pattern": "^host\\."
+        }
+      }
+    },
+    "disagreement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["disagreementId", "position", "disposition", "reason"],
+      "properties": {
+        "disagreementId": { "$ref": "#/$defs/identifier" },
+        "position": { "type": "string", "minLength": 1, "maxLength": 4000 },
+        "disposition": {
+          "enum": ["accepted", "rejected", "unresolved", "owner_decision_required"]
+        },
+        "reason": { "type": "string", "minLength": 1, "maxLength": 4000 },
+        "raisedBy": { "$ref": "#/$defs/principalRef" },
+        "relatedArtifactIds": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/identifier" },
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

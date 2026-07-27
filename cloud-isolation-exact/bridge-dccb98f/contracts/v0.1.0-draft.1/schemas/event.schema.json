@@ -1,0 +1,237 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bridge2.local/contracts/v0.1.0-draft.1/schemas/event.schema.json",
+  "title": "Bridge 2.0 Draft Event Envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "eventId",
+    "projectId",
+    "sequence",
+    "generation",
+    "eventType",
+    "aggregate",
+    "actor",
+    "occurredAt",
+    "correlationId",
+    "data",
+    "hashAlgorithm",
+    "hash"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "0.1.0-draft.1" },
+    "eventId": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.1/schemas/common.schema.json#/$defs/identifier"
+    },
+    "projectId": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.1/schemas/common.schema.json#/$defs/identifier"
+    },
+    "sequence": { "type": "integer", "minimum": 1 },
+    "generation": { "type": "integer", "minimum": 1 },
+    "eventType": {
+      "enum": [
+        "review_job.created",
+        "review_job.claimable",
+        "review_job.claimed",
+        "review_job.started",
+        "review_job.input_requested",
+        "review_job.input_resumed",
+        "review_job.completed",
+        "review_job.failed",
+        "review_job.cancelled",
+        "review_job.claim_expired",
+        "project.generation_advanced"
+      ]
+    },
+    "aggregate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id"],
+      "properties": {
+        "type": { "enum": ["project", "review_job", "artifact", "adapter", "backup", "restore"] },
+        "id": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.1/schemas/common.schema.json#/$defs/identifier"
+        }
+      }
+    },
+    "actor": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.1/schemas/common.schema.json#/$defs/principalRef"
+    },
+    "occurredAt": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.1/schemas/common.schema.json#/$defs/timestamp"
+    },
+    "correlationId": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.1/schemas/common.schema.json#/$defs/identifier"
+    },
+    "causationId": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.1/schemas/common.schema.json#/$defs/identifier"
+    },
+    "idempotencyKey": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.1/schemas/common.schema.json#/$defs/identifier"
+    },
+    "data": {
+      "type": "object",
+      "description": "Closed by eventType below. Source bytes, prompts, credentials, and arbitrary extension fields are forbidden."
+    },
+    "previousHash": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.1/schemas/common.schema.json#/$defs/sha256"
+    },
+    "hashAlgorithm": { "const": "sha256-bridge-cjson-v1" },
+    "hash": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.1/schemas/common.schema.json#/$defs/sha256"
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "sequence": { "const": 1 } } },
+      "then": {
+        "not": {
+          "properties": { "previousHash": true },
+          "required": ["previousHash"]
+        }
+      }
+    },
+    {
+      "if": { "properties": { "sequence": { "type": "integer", "minimum": 2 } } },
+      "then": {
+        "properties": { "previousHash": true },
+        "required": ["previousHash"]
+      }
+    },
+    {
+      "if": { "properties": { "eventType": { "const": "review_job.created" } } },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["mode"],
+            "properties": {
+              "mode": { "enum": ["collaboration", "independent_review"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "eventType": { "const": "review_job.claimable" } } },
+      "then": { "properties": { "data": { "$ref": "#/$defs/emptyData" } } }
+    },
+    {
+      "if": { "properties": { "eventType": { "const": "review_job.claimed" } } },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["claimId", "fencingToken"],
+            "properties": {
+              "claimId": {
+                "$ref": "https://bridge2.local/contracts/v0.1.0-draft.1/schemas/common.schema.json#/$defs/identifier"
+              },
+              "fencingToken": { "type": "integer", "minimum": 1 }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "eventType": { "const": "review_job.started" } } },
+      "then": { "properties": { "data": { "$ref": "#/$defs/emptyData" } } }
+    },
+    {
+      "if": { "properties": { "eventType": { "const": "review_job.input_requested" } } },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["reason"],
+            "properties": {
+              "reason": { "type": "string", "minLength": 1, "maxLength": 2000 }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "eventType": { "const": "review_job.input_resumed" } } },
+      "then": { "properties": { "data": { "$ref": "#/$defs/emptyData" } } }
+    },
+    {
+      "if": { "properties": { "eventType": { "const": "review_job.completed" } } },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["outcome"],
+            "properties": {
+              "outcome": {
+                "enum": ["accepted", "changes_requested", "rejected", "inconclusive"]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "eventType": { "const": "review_job.failed" } } },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["reason", "retryable"],
+            "properties": {
+              "reason": { "type": "string", "minLength": 1, "maxLength": 2000 },
+              "retryable": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "eventType": { "const": "review_job.cancelled" } } },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["reason"],
+            "properties": {
+              "reason": { "type": "string", "minLength": 1, "maxLength": 2000 }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "eventType": { "const": "review_job.claim_expired" } } },
+      "then": { "properties": { "data": { "$ref": "#/$defs/emptyData" } } }
+    },
+    {
+      "if": { "properties": { "eventType": { "const": "project.generation_advanced" } } },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["reason"],
+            "properties": {
+              "reason": { "type": "string", "minLength": 1, "maxLength": 2000 }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "emptyData": {
+      "type": "object",
+      "additionalProperties": false,
+      "maxProperties": 0
+    }
+  }
+}

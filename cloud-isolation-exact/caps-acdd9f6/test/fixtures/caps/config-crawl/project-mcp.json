@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "local-postgres": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://user:secretpassword@localhost/mydb"
+      ],
+      "env": {
+        "PGPASSWORD": "supersecretpassword123"
+      }
+    },
+    "local-sqlite": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-sqlite",
+        "--db-path",
+        "./test.db",
+        "--api-key",
+        "sqlite_token_xyz"
+      ]
+    }
+  }
+}

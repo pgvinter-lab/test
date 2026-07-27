@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "broken-server": {
+      "command": "node",
+      "args": [
+        "app.js",
+        "invalid_string
+      ]
+    },
+    "this_is_a_very_long_key_to_pad_the_length_of_the_file_above_100_bytes_as_required_by_the_prompt": true
+  }
+}

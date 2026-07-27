@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "bridge2-key-capsule-v1",
+  "contractVersion": "0.1.0-draft.4",
+  "capsuleId": "capsule.demo.001",
+  "backupId": "backup.demo.001",
+  "keyRef": "bridge-key://backup/demo-001",
+  "wrappingAlgorithmId": "rsa-oaep-sha256",
+  "oaepHash": "sha256",
+  "recipientKeyFingerprint": "6666666666666666666666666666666666666666666666666666666666666666",
+  "dataKeySha256": "7777777777777777777777777777777777777777777777777777777777777777",
+  "wrappedKeyBase64": "c3ludGhldGljLXdyYXBwZWQta2V5",
+  "createdAt": "2026-07-14T20:00:00Z"
+}

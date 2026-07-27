@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/approval-grant.schema.json",
+  "title": "Bridge 2.0 Draft Scoped Approval Grant",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "grantId",
+    "projectId",
+    "status",
+    "grantedBy",
+    "grantedTo",
+    "requiredRole",
+    "grantedAt",
+    "expiresAt",
+    "scope",
+    "claimBinding",
+    "instructionBinding",
+    "usesConsumed",
+    "defaultOnNoMatch"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "0.1.0-draft.3" },
+    "grantId": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier"
+    },
+    "projectId": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier"
+    },
+    "status": { "enum": ["active", "revoked", "exhausted", "expired"] },
+    "grantedBy": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/principalRef"
+    },
+    "grantedTo": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/principalRef"
+    },
+    "requiredRole": { "enum": ["collaborator", "reviewer", "worker"] },
+    "grantedAt": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/timestamp"
+    },
+    "expiresAt": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/timestamp"
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "jobId",
+        "adapterIds",
+        "actions",
+        "conditions",
+        "destinations",
+        "origins",
+        "sideEffectClasses",
+        "approvalPromptClasses",
+        "maxUses"
+      ],
+      "properties": {
+        "jobId": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier"
+        },
+        "adapterIds": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier"
+          },
+          "uniqueItems": true
+        },
+        "actions": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1, "maxLength": 200 },
+          "uniqueItems": true
+        },
+        "conditions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "operator", "value"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1, "maxLength": 100 },
+              "operator": { "enum": ["equals", "one_of"] },
+              "value": {
+                "oneOf": [
+                  { "type": "string" },
+                  { "type": "number" },
+                  { "type": "boolean" },
+                  {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "anyOf": [
+                        { "type": "string" },
+                        { "type": "number" },
+                        { "type": "boolean" }
+                      ]
+                    },
+                    "uniqueItems": true
+                  }
+                ]
+              }
+            },
+            "allOf": [
+              {
+                "if": { "properties": { "operator": { "const": "equals" } } },
+                "then": {
+                  "properties": {
+                    "value": {
+                      "anyOf": [
+                        { "type": "string" },
+                        { "type": "number" },
+                        { "type": "boolean" }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "if": { "properties": { "operator": { "const": "one_of" } } },
+                "then": {
+                  "properties": { "value": { "type": "array", "minItems": 1 } }
+                }
+              }
+            ]
+          }
+        },
+        "destinations": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "format": "uri-reference", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "origins": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "format": "uri-reference", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "sideEffectClasses": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "enum": ["read_only", "local_write", "external_reversible", "external_irreversible"]
+          },
+          "uniqueItems": true
+        },
+        "approvalPromptClasses": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 100 },
+          "uniqueItems": true
+        },
+        "maxUses": { "type": "integer", "minimum": 1, "maximum": 10000 }
+      }
+    },
+    "claimBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claimId", "generation", "fencingToken"],
+      "properties": {
+        "claimId": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier"
+        },
+        "generation": { "type": "integer", "minimum": 1 },
+        "fencingToken": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "instructionBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["instructionSetId", "version", "contentHash"],
+      "properties": {
+        "instructionSetId": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/identifier"
+        },
+        "version": { "type": "integer", "minimum": 1 },
+        "contentHash": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/sha256"
+        }
+      }
+    },
+    "usesConsumed": { "type": "integer", "minimum": 0 },
+    "defaultOnNoMatch": { "const": "ask" },
+    "revocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revokedAt", "revokedBy", "reason"],
+      "properties": {
+        "revokedAt": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/timestamp"
+        },
+        "revokedBy": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.3/schemas/common.schema.json#/$defs/principalRef"
+        },
+        "reason": { "type": "string", "minLength": 1, "maxLength": 2000 }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "revoked" } } },
+      "then": {
+        "properties": { "revocation": true },
+        "required": ["revocation"]
+      }
+    },
+    {
+      "if": { "properties": { "status": { "enum": ["active", "exhausted", "expired"] } } },
+      "then": {
+        "not": {
+          "properties": { "revocation": true },
+          "required": ["revocation"]
+        }
+      }
+    }
+  ]
+}

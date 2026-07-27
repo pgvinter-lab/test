@@ -1,0 +1,67 @@
+{
+  "id": "gemini-web",
+  "surface": "gemini",
+  "displayName": "Gemini (web, owned tab)",
+  "transport": "claude-in-chrome",
+  "baseUrl": "https://gemini.google.com/app",
+  "newChatUrl": "https://gemini.google.com/app",
+  "ownership": {
+    "matchUrl": "https://gemini.google.com/*",
+    "titleMarker": "gemini",
+    "stateKey": "gemini"
+  },
+  "loginCheck": "window.__CONN.loggedIn() — composer present means signed in. A Google sign-in wall => return error login_required.",
+  "fallbackFor": "Reach this tab when the Gemini CLI is unavailable (registry surface 'gemini' transport (a)). Code should try CLI first, fall back here on CLI error.",
+  "abilities": {
+    "default": {
+      "desc": "Standard chat turn (pick the model in the model switcher first if a specific tier is required).",
+      "activate": "Optional: open the model switcher and select e.g. '2.5 Pro' before sending.",
+      "expectFiles": false,
+      "settleTimeoutMs": 600000
+    },
+    "deep_research": {
+      "desc": "Gemini Deep Research — multi-step browse + long report. UI-gated.",
+      "activate": "Select 'Deep Research' in the prompt tools, send the question, then click 'Start research' on the generated plan (auto-confirm if command.unattended).",
+      "expectFiles": false,
+      "settleTimeoutMs": 2400000
+    },
+    "canvas": {
+      "desc": "Canvas for iterative docs/code.",
+      "activate": "Select 'Canvas' in the prompt tools.",
+      "expectFiles": false,
+      "settleTimeoutMs": 900000
+    },
+    "multimodal": {
+      "desc": "Native audio/image understanding (registry routes audio->text and scanned/visual docs here).",
+      "activate": "Attach the file via the upload control, then prompt.",
+      "expectFiles": false,
+      "settleTimeoutMs": 600000
+    }
+  },
+  "promptSyntax": {
+    "notes": "No system prompt over the UI — frame inline. Gemini Deep Research returns a PLAN first that must be confirmed before it runs; the connector must click through it. One task per turn.",
+    "maxPromptChars": 30000,
+    "modeWrapper": {
+      "deep_research": "Research question: {prompt}\nScope & constraints: {scope}\nDeliverable: a cited report."
+    }
+  },
+  "settle": {
+    "streamingSignal": "a stop/cancel control is present means still generating",
+    "doneSignal": "the send control is re-enabled AND share/export actions appear on the last response",
+    "quiesceMs": 1000,
+    "timeoutMsDefault": 600000
+  },
+  "selectors": {
+    "composer": "div.ql-editor[contenteditable=\"true\"], rich-textarea [contenteditable=\"true\"]",
+    "toolsBtn": "button[aria-label=\"Upload & tools\"]",
+    "modelPicker": "button[aria-label*=\"mode picker\" i]",
+    "sendBtn": "button[aria-label*=\"Send\" i], button.send-button",
+    "stopBtn": "button[aria-label*=\"Stop\" i], button[aria-label*=\"Cancel\" i]",
+    "assistantTurn": "message-content, .model-response-text, [class*=\"response-container\"]",
+    "newChat": "[aria-label*=\"New chat\" i], a[href$=\"/app\"]",
+    "downloadLink": "a[download], a[href^=\"blob:\"]"
+  },
+  "downloads": "Files land in the OS Downloads dir; connector returns the name, Code resolves the newest match.",
+  "warnings": "Gemini uses custom elements (e.g. <message-content>) and aria labels that change; selectors here are best-effort — VERIFY against the live DOM and re-anchor when they break.",
+  "verified_2026_06_25": "Live-tested OK. composer div.ql-editor confirmed; toolsBtn='Upload & tools', modelPicker='Open mode picker, currently Pro'. insertText worked cleanly (lighter editor than ChatGPT). CAPABILITY LIMIT: the Gemini web app CANNOT create Google Drive folders — its Workspace access only creates Docs/Sheets. A 'create folder tree' request yields a write-up + an Apps Script, not real folders. To materialize a tree, hand off to the Google Drive MCP or run the returned Apps Script."
+}

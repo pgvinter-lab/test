@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bridge.local/contracts/mailbox-v1-draft/v3/schemas/common.schema.json",
+  "title": "Bridge Mailbox v3 Common Definitions",
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 180,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "webNodeId": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 48,
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "provider": { "enum": ["chatgpt", "antigravity", "web"] },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["principalId", "sessionId", "hostId"],
+      "properties": {
+        "principalId": { "$ref": "#/$defs/identifier" },
+        "sessionId": { "$ref": "#/$defs/identifier" },
+        "hostId": { "$ref": "#/$defs/identifier" }
+      }
+    },
+    "chatgptDestination": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "origin"],
+      "properties": {
+        "kind": { "const": "browser-origin" },
+        "origin": { "const": "https://chatgpt.com" }
+      }
+    },
+    "antigravityDestination": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "surface"],
+      "properties": {
+        "kind": { "const": "local-mcp" },
+        "surface": { "const": "antigravity" }
+      }
+    },
+    "webDestination": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "origin", "webNodeId"],
+      "properties": {
+        "kind": { "const": "browser-origin" },
+        "origin": { "type": "string", "format": "uri", "pattern": "^https://[^/]+$" },
+        "webNodeId": { "$ref": "#/$defs/webNodeId" }
+      }
+    },
+    "destination": {
+      "oneOf": [
+        { "$ref": "#/$defs/chatgptDestination" },
+        { "$ref": "#/$defs/antigravityDestination" },
+        { "$ref": "#/$defs/webDestination" }
+      ]
+    }
+  }
+}

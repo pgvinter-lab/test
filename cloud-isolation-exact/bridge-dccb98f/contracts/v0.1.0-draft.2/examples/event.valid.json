@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "0.1.0-draft.2",
+  "eventId": "event.review.claimed.001",
+  "projectId": "project.demo",
+  "sequence": 1,
+  "generation": 1,
+  "eventType": "review_job.claimed",
+  "aggregate": {
+    "type": "review_job",
+    "id": "job.review.001"
+  },
+  "actor": {
+    "principalId": "principal.reviewer",
+    "sessionId": "session.review.001",
+    "hostId": "host.demo"
+  },
+  "occurredAt": "2026-07-12T12:10:00Z",
+  "correlationId": "correlation.review.001",
+  "idempotencyKey": "idempotency.claim.001",
+  "data": {
+    "claimId": "claim.review.001",
+    "fencingToken": 1
+  },
+  "hashAlgorithm": "sha256-bridge-cjson-v1",
+  "hash": "de0293a5034ed5bbe9502312a2432ad1312cc3a2a835bce3ff8dc3ccaf791729"
+}

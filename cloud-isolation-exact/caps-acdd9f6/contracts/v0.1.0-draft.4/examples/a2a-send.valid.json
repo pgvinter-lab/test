@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "0.1.0-draft.4",
+  "target": "codex",
+  "prompt": "Return the synthetic A2A sentinel.",
+  "idempotencyKey": "synthetic-a2a-send-001",
+  "project": "Synthetic Project"
+}

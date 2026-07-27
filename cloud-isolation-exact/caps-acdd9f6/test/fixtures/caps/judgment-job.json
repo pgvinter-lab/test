@@ -1,0 +1,57 @@
+{
+  "schema_version": "bridge-caps-judgment-v1",
+  "refresh_run_id": "run-001",
+  "generated_at": "2026-07-24T12:00:00Z",
+  "needs_profile": {
+    "path": "test-path",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "diff": {
+    "new_available": [
+      {
+        "id": "cand-free",
+        "name": "Free Tool",
+        "kind": "tool",
+        "pricing": "free",
+        "category": "cat1",
+        "one_liner": "A free tool",
+        "source_url": "https://example.com/free",
+        "ask_first": false
+      },
+      {
+        "id": "cand-paid",
+        "name": "Paid Tool",
+        "kind": "tool",
+        "pricing": "paid",
+        "category": "cat2",
+        "one_liner": "A paid tool",
+        "source_url": "https://example.com/paid",
+        "ask_first": true
+      }
+    ],
+    "status_flips": [],
+    "watch_deltas": []
+  },
+  "rules": {
+    "free_first": true,
+    "paid_ask_first": true
+  },
+  "response_contract": {
+    "model": "<model name>",
+    "judged_at": "<ISO-8601 timestamp>",
+    "verdicts": [
+      {
+        "id": "cand-free",
+        "verdict": "<immediate-need|watch|no>",
+        "reason": "<reason string>",
+        "pricing_ack": "<free|unknown|paid>"
+      },
+      {
+        "id": "cand-paid",
+        "verdict": "<immediate-need|watch|no>",
+        "reason": "<reason string>",
+        "pricing_ack": "<free|unknown|paid>"
+      }
+    ]
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "brokerUrl": "http://127.0.0.1:7319",
+  "brokerToken": "GENERATED_OUTSIDE_SOURCE",
+  "pollSeconds": 30,
+  "autoOpen": true,
+  "targets": [
+    {
+      "provider": "web",
+      "schemaVersion": "bridge-web-node-v1",
+      "nodeId": "example",
+      "displayName": "Example WEB node",
+      "enabled": true,
+      "origin": "https://example.com",
+      "startUrl": "https://example.com/",
+      "auth": {
+        "mode": "browser-profile"
+      },
+      "selectors": {
+        "composer": ["textarea"],
+        "submit": ["button[type='submit']"],
+        "response": ["main article"],
+        "busy": []
+      },
+      "behavior": {
+        "submitMode": "button-or-enter",
+        "responseMode": "last-new-node",
+        "timeoutMs": 720000,
+        "settleMs": 1000,
+        "stablePolls": 5,
+        "maxBytes": 1048576
+      }
+    }
+  ]
+}

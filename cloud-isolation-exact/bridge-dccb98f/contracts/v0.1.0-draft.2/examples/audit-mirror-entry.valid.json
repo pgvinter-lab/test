@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "0.1.0-draft.2",
+  "mirrorSequence": 1,
+  "mirroredAt": "2026-07-12T12:10:01Z",
+  "event": {
+    "schemaVersion": "0.1.0-draft.2",
+    "eventId": "event.review.claimed.001",
+    "projectId": "project.demo",
+    "sequence": 1,
+    "generation": 1,
+    "eventType": "review_job.claimed",
+    "aggregate": { "type": "review_job", "id": "job.review.001" },
+    "actor": {
+      "principalId": "principal.reviewer",
+      "sessionId": "session.review.001",
+      "hostId": "host.demo"
+    },
+    "occurredAt": "2026-07-12T12:10:00Z",
+    "correlationId": "correlation.review.001",
+    "idempotencyKey": "idempotency.claim.001",
+    "data": { "claimId": "claim.review.001", "fencingToken": 1 },
+    "hashAlgorithm": "sha256-bridge-cjson-v1",
+    "hash": "de0293a5034ed5bbe9502312a2432ad1312cc3a2a835bce3ff8dc3ccaf791729"
+  },
+  "instructionSets": [
+    {
+      "instructionSetId": "instructions.review.001",
+      "version": 1,
+      "text": "Red-team the draft contract and preserve disagreements.",
+      "contentHash": "39b871abf7ccb4566d7b40c15e84f85440b7e52a6f76c32227b2390f6b601f59",
+      "authoredBy": {
+        "principalId": "principal.owner",
+        "sessionId": "session.owner.001",
+        "hostId": "host.demo"
+      },
+      "authoredAt": "2026-07-12T12:00:00Z",
+      "materialAmendment": false,
+      "invalidatesApprovalGrantIds": []
+    }
+  ],
+  "approvals": [],
+  "actions": [],
+  "outcomes": [],
+  "citations": [],
+  "excludedContentClasses": ["browser_state", "credentials", "raw_artifact_contents", "secrets"],
+  "hashAlgorithm": "sha256-bridge-audit-cjson-v1",
+  "mirrorHash": "c69fcf2557734c43c09e1b83eefa07701884688335d31ebed4cb795f469c41a9"
+}

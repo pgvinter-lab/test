@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "0.1.0-draft.4",
+  "channel": "a2a",
+  "taskId": "job.a2a-0123456789abcdef0123456789abcdef01234567",
+  "state": "completed",
+  "terminal": true,
+  "completed": true,
+  "artifactIds": ["artifact.a2a-result-0123456789abcdef0123456789abcdef01234567"],
+  "output": "BRIDGE_A2A_TERMINAL_SENTINEL",
+  "failure": null
+}

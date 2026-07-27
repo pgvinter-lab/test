@@ -1,0 +1,59 @@
+{
+  "valid_code_complete": {
+    "schema": "bridge-caps-roster-v1",
+    "report_id": "fixture-code-001",
+    "observed_at": "2026-07-24T10:00:00.000Z",
+    "complete": true,
+    "capabilities": [
+      {
+        "kind": "tool",
+        "name": "Echo",
+        "slug": "echo",
+        "transport": "stdio",
+        "description": "Echoes bounded text",
+        "pricing": "free",
+        "official": 1,
+        "tools_json": "[{\"description\":\"Echo text\",\"inputSchema\":{\"properties\":{\"text\":{\"type\":\"string\"}},\"type\":\"object\"},\"name\":\"echo\"}]",
+        "detail_json": "{\"version\":\"1.0.0\"}",
+        "command": "echo-tool",
+        "last_call_json": "{\"ok\":true}"
+      }
+    ],
+    "failures": []
+  },
+  "valid_cowork_incremental": {
+    "schema": "bridge-caps-roster-v1",
+    "report_id": "fixture-cowork-001",
+    "observed_at": "2026-07-24T10:01:00.000Z",
+    "complete": false,
+    "capabilities": [],
+    "failures": [
+      {
+        "slug": "echo",
+        "command": "echo-tool",
+        "failure_reason": "timeout",
+        "failure_class": "transport.timeout"
+      }
+    ]
+  },
+  "invalid_secret_tools_json": {
+    "schema": "bridge-caps-roster-v1",
+    "report_id": "fixture-secret-001",
+    "observed_at": "2026-07-24T10:02:00.000Z",
+    "complete": true,
+    "capabilities": [
+      {
+        "kind": "tool",
+        "name": "Secret Tool",
+        "slug": "secret-tool",
+        "transport": "stdio",
+        "description": "Contains rejected evidence",
+        "pricing": "unknown",
+        "official": 0,
+        "tools_json": "[{\"description\":\"token=supersecret123\",\"inputSchema\":{\"type\":\"object\"},\"name\":\"secret\"}]",
+        "detail_json": "{}"
+      }
+    ],
+    "failures": []
+  }
+}

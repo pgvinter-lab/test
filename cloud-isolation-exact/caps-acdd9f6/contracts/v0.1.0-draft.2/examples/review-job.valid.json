@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "0.1.0-draft.2",
+  "jobId": "job.review.001",
+  "projectId": "project.demo",
+  "mode": "independent_review",
+  "status": "claimable",
+  "requestedBy": {
+    "principalId": "principal.owner",
+    "sessionId": "session.owner.001",
+    "hostId": "host.demo"
+  },
+  "requiredRole": "reviewer",
+  "independence": {
+    "policy": "required",
+    "excludedPrincipalIds": ["principal.owner", "principal.author"],
+    "provenanceArtifactIds": ["artifact.contract.001"],
+    "evaluatedBy": {
+      "principalId": "principal.policy",
+      "sessionId": "session.policy.001",
+      "hostId": "host.demo"
+    },
+    "evaluatedAt": "2026-07-12T12:00:00Z"
+  },
+  "target": {
+    "contractVersion": "0.1.0-draft.2",
+    "artifactIds": ["artifact.contract.001"],
+    "instructions": {
+      "instructionSetId": "instructions.review.001",
+      "version": 1,
+      "text": "Red-team the draft contract and preserve disagreements.",
+      "contentHash": "39b871abf7ccb4566d7b40c15e84f85440b7e52a6f76c32227b2390f6b601f59",
+      "authoredBy": {
+        "principalId": "principal.owner",
+        "sessionId": "session.owner.001",
+        "hostId": "host.demo"
+      },
+      "authoredAt": "2026-07-12T12:00:00Z",
+      "materialAmendment": false,
+      "invalidatesApprovalGrantIds": []
+    },
+    "acceptanceCriteria": [
+      "Identify security and recovery failure modes.",
+      "Return accepted, rejected, and unresolved findings."
+    ]
+  },
+  "attempt": 0,
+  "createdAt": "2026-07-12T12:00:00Z",
+  "updatedAt": "2026-07-12T12:00:00Z"
+}

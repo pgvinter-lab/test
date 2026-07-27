@@ -1,0 +1,47 @@
+{
+  "mcpServers": {
+    "agy-test-server": {
+      "command": "/opt/bin/node",
+      "args": [
+        "agy_server.js",
+        "--password",
+        "agy_secret_pwd_456",
+        "--port",
+        "9090",
+        "--verbose"
+      ]
+    },
+    "canonical-only-server": {
+      "command": "C:\\Program Files\\Go\\bin\\go.exe",
+      "args": [
+        "run",
+        ".",
+        "--authorization",
+        "Bearer asdfghjkl"
+      ]
+    }
+  },
+  "mcp": {
+    "servers": {
+      "agy-test-server": {
+        "command": "python",
+        "args": [
+          "legacy.py"
+        ]
+      },
+      "gemini-legacy-server": {
+        "command": "python",
+        "args": [
+          "legacy.py",
+          "--api-key",
+          "legacy_token_111",
+          "--host",
+          "0.0.0.0"
+        ]
+      }
+    }
+  },
+  "appearance": {
+    "theme": "dark"
+  }
+}

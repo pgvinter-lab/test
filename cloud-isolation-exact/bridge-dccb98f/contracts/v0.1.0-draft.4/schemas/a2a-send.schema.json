@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bridge2.local/contracts/v0.1.0-draft.4/schemas/a2a-send.schema.json",
+  "title": "Bridge A2A Subscription Dispatch",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "target", "prompt", "idempotencyKey"],
+  "properties": {
+    "schemaVersion": { "const": "0.1.0-draft.4" },
+    "target": { "enum": ["antigravity", "claude", "codex"] },
+    "prompt": { "type": "string", "minLength": 1, "maxLength": 16000 },
+    "idempotencyKey": { "type": "string", "minLength": 1, "maxLength": 300 },
+    "project": { "type": "string", "minLength": 1, "maxLength": 2000 }
+  }
+}

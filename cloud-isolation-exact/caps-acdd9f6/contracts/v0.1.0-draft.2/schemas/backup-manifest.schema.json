@@ -1,0 +1,258 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bridge2.local/contracts/v0.1.0-draft.2/schemas/backup-manifest.schema.json",
+  "title": "Bridge 2.0 Draft Backup Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "backupId",
+    "projectId",
+    "contractVersion",
+    "backupType",
+    "generation",
+    "createdAt",
+    "createdBy",
+    "sourceHostId",
+    "sourceCommit",
+    "dirty",
+    "consistency",
+    "contents",
+    "encryption",
+    "destinations"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "0.1.0-draft.2" },
+    "backupId": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.2/schemas/common.schema.json#/$defs/identifier"
+    },
+    "projectId": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.2/schemas/common.schema.json#/$defs/identifier"
+    },
+    "contractVersion": { "const": "0.1.0-draft.2" },
+    "backupType": { "enum": ["source_only", "full"] },
+    "generation": { "type": "integer", "minimum": 1 },
+    "createdAt": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.2/schemas/common.schema.json#/$defs/timestamp"
+    },
+    "createdBy": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.2/schemas/common.schema.json#/$defs/principalRef"
+    },
+    "sourceHostId": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.2/schemas/common.schema.json#/$defs/identifier"
+    },
+    "sourceCommit": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40,64}$"
+    },
+    "dirty": { "type": "boolean" },
+    "consistency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["quiesced", "eventSequence", "databaseCheckpoint"],
+      "properties": {
+        "quiesced": { "type": "boolean" },
+        "eventSequence": { "type": "integer", "minimum": 0 },
+        "databaseCheckpoint": { "type": "string", "minLength": 1, "maxLength": 300 }
+      }
+    },
+    "contents": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "kind", "sizeBytes", "sha256", "sensitivity"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1, "maxLength": 300 },
+          "kind": {
+            "enum": [
+              "git_bundle",
+              "state_snapshot",
+              "event_log",
+              "audit_mirror",
+              "artifact_index",
+              "configuration"
+            ]
+          },
+          "sizeBytes": { "type": "integer", "minimum": 0 },
+          "sha256": {
+            "$ref": "https://bridge2.local/contracts/v0.1.0-draft.2/schemas/common.schema.json#/$defs/sha256"
+          },
+          "sensitivity": { "enum": ["public", "internal", "confidential", "restricted"] }
+        }
+      }
+    },
+    "encryption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode"],
+      "properties": {
+        "mode": { "enum": ["none", "aes-256-gcm"] },
+        "keyRef": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300,
+          "description": "Opaque reference only. Key material is forbidden."
+        },
+        "wrappedKeyCapsule": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "capsuleRef",
+            "storageAccountRef",
+            "wrappingAlgorithmId",
+            "recoveryProcedureRef",
+            "decryptionSecretCustody"
+          ],
+          "properties": {
+            "capsuleRef": {
+              "type": "string",
+              "format": "uri-reference",
+              "minLength": 1,
+              "maxLength": 500,
+              "description": "Reference to an encrypted or wrapped capsule; raw key material is forbidden."
+            },
+            "storageAccountRef": { "const": "drive-account://recovery-key-account" },
+            "wrappingAlgorithmId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Algorithm identifier selected by a separately approved key-custody policy."
+            },
+            "recoveryProcedureRef": {
+              "type": "string",
+              "format": "uri-reference",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "decryptionSecretCustody": { "const": "outside_drive_and_github" }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "mode": { "const": "aes-256-gcm" } } },
+          "then": {
+            "properties": { "keyRef": true, "wrappedKeyCapsule": true },
+            "required": ["keyRef", "wrappedKeyCapsule"]
+          }
+        }
+      ]
+    },
+    "destinations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "uri", "status"],
+        "properties": {
+          "kind": { "enum": ["local", "drive"] },
+          "uri": { "type": "string", "format": "uri-reference", "minLength": 1 },
+          "status": { "enum": ["pending", "verified", "failed"] },
+          "verifiedAt": {
+            "$ref": "https://bridge2.local/contracts/v0.1.0-draft.2/schemas/common.schema.json#/$defs/timestamp"
+          }
+        }
+      }
+    },
+    "previousBackupId": {
+      "$ref": "https://bridge2.local/contracts/v0.1.0-draft.2/schemas/common.schema.json#/$defs/identifier"
+    },
+    "ownerException": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["approvalGrantId", "reason", "approvedBy"],
+      "properties": {
+        "approvalGrantId": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.2/schemas/common.schema.json#/$defs/identifier"
+        },
+        "reason": { "type": "string", "minLength": 1, "maxLength": 2000 },
+        "approvedBy": {
+          "$ref": "https://bridge2.local/contracts/v0.1.0-draft.2/schemas/common.schema.json#/$defs/principalRef"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "backupType": { "const": "full" } } },
+      "then": {
+        "properties": {
+          "dirty": { "const": false },
+          "consistency": {
+            "type": "object",
+            "properties": { "quiesced": { "const": true } }
+          },
+          "contents": {
+            "type": "array",
+            "contains": {
+              "type": "object",
+              "properties": { "kind": { "const": "state_snapshot" } },
+              "required": ["kind"]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "backupType": { "const": "source_only" } } },
+      "then": {
+        "properties": {
+          "contents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": { "enum": ["git_bundle", "configuration"] }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "backupType": { "const": "source_only" },
+          "dirty": { "const": true }
+        },
+        "required": ["backupType", "dirty"]
+      },
+      "then": {
+        "properties": { "ownerException": true },
+        "required": ["ownerException"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "contents": {
+            "type": "array",
+            "contains": {
+              "type": "object",
+              "properties": {
+                "sensitivity": { "enum": ["confidential", "restricted"] }
+              },
+              "required": ["sensitivity"]
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "encryption": {
+            "type": "object",
+            "properties": {
+              "mode": { "const": "aes-256-gcm" },
+              "keyRef": true,
+              "wrappedKeyCapsule": true
+            },
+            "required": ["keyRef", "wrappedKeyCapsule"]
+          }
+        }
+      }
+    }
+  ]
+}

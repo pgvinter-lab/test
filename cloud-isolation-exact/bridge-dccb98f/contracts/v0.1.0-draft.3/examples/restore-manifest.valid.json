@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "0.1.0-draft.3",
+  "restoreId": "restore.demo.001",
+  "backupId": "backup.demo.001",
+  "projectId": "project.demo",
+  "mode": "new_host",
+  "requestedAt": "2026-07-12T14:00:00Z",
+  "requestedBy": {
+    "principalId": "principal.owner",
+    "sessionId": "session.owner.002",
+    "hostId": "host.new"
+  },
+  "targetHostId": "host.new",
+  "expectedSourceGeneration": 1,
+  "takeover": {
+    "mode": "owner_confirmed_takeover",
+    "newGeneration": 2,
+    "approvalRef": "approval.owner.001"
+  },
+  "preconditions": [
+    {
+      "check": "Backup hashes and signature verify",
+      "status": "pending"
+    },
+    {
+      "check": "Prior active instance is stopped or isolated",
+      "status": "pending"
+    }
+  ],
+  "steps": [
+    {
+      "order": 1,
+      "operation": "verify_backup",
+      "status": "pending"
+    },
+    {
+      "order": 2,
+      "operation": "restore_source",
+      "status": "pending"
+    },
+    {
+      "order": 3,
+      "operation": "restore_state",
+      "status": "pending"
+    },
+    {
+      "order": 4,
+      "operation": "doctor",
+      "status": "pending"
+    },
+    {
+      "order": 5,
+      "operation": "activate",
+      "status": "pending"
+    }
+  ],
+  "validation": {
+    "contractTests": "pending",
+    "doctor": "pending",
+    "eventSequence": 42
+  },
+  "status": "planned"
+}
