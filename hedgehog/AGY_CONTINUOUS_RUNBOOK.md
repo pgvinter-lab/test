@@ -14,7 +14,7 @@ Run the 60-day Hedgehog engineering program as a persistent, evidence-driven Ant
 - Evidence: `hedgehog/evidence/`
 - Outreach drafts: `hedgehog/outreach/drafts/`
 
-The existing repository is public. Never commit secrets, credentials, customer data, private legal material, exploit code intended for unauthorized use, or sensitive infrastructure details. Move to a private repository before real customer or production data enters the project.
+The existing repository is public, and that is not a blocker. Hedgehog architecture, topology, system design, implementation details, ADRs, threat models, synthetic fixtures, benchmark methods and results, and reproducibility evidence may be committed there. The same material may also be archived under `SK-O/Hedgehog/System` in Google Drive. Never commit actual secrets, credentials, customer data, private legal records, model weights, or live production payloads containing private data. Move real customer or private production data to appropriately restricted storage before it enters the project.
 
 ## Trigger configuration
 
