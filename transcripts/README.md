@@ -12,12 +12,13 @@ the microphone map, `names.json` for spellings).
 
 | Path | What it is |
 |---|---|
-| `court-hearing.md` | The generated transcript. |
+| `court-hearing.md` | The generated transcript (Markdown). |
+| `6-30-26 Hearing Transcript.docx` | The same transcript as a Word document. |
 | `manifest.json` | Every source audio file: order, offset, duration, SHA-256. |
 | `data/segNN.json` | Raw recogniser output per segment — timestamps, mic, confidence, text. |
 | `speakers.json` | Microphone → courtroom position. Inferred; edit as it is confirmed. |
 | `names.json` | Proper nouns with the variants the recogniser produced. All `verified:false`. |
-| `tools/` | The pipeline (see below). |
+| `tools/` | The pipeline (see below); `make_docx.js` builds the Word version. |
 
 Audio itself is deliberately **not** committed — the manifest carries the SHA-256 of
 each source file so a segment can be matched back to its recording.
@@ -45,6 +46,9 @@ python3 make_manifest.py
 
 # 4. Rebuild the document.
 python3 build_doc.py
+
+# 5. Rebuild the Word version (needs `npm install docx` once).
+node make_docx.js "../6-30-26 Hearing Transcript.docx"
 ```
 
 `make_manifest.py` keys off the source filename, so re-running it is safe — a file
