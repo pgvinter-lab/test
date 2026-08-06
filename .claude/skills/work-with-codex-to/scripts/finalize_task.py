@@ -22,7 +22,26 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 
-REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+def _repo_root():
+    """Repo root, not .claude/.
+
+    The script sits at <repo>/.claude/skills/work-with-codex-to/scripts/, so
+    walking up four levels lands on .claude and writes the bus to
+    .claude/.shared/ — where no watcher looks. Ask git, and fall back to the
+    correct five-level walk if this is ever run outside a work tree.
+    """
+    r = subprocess.run(["git", "-C", os.path.dirname(os.path.abspath(__file__)),
+                        "rev-parse", "--show-toplevel"],
+                       capture_output=True, text=True)
+    if r.returncode == 0 and r.stdout.strip():
+        return r.stdout.strip()
+    p = os.path.abspath(__file__)
+    for _ in range(5):
+        p = os.path.dirname(p)
+    return p
+
+
+REPO = _repo_root()
 SHARED = os.environ.get("SHARED_DIR", os.path.join(REPO, ".shared"))
 INBOX = os.path.join(SHARED, "handoff", "inbox.code.jsonl")
 LOG = os.path.join(SHARED, "log.jsonl")
