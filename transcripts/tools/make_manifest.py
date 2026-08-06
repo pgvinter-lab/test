@@ -2,8 +2,7 @@
 import json, os, hashlib, datetime, shutil, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-REPO = "/home/user/test"
-TDIR = os.path.join(REPO, "transcripts")
+TDIR = os.path.dirname(HERE) if os.path.basename(HERE) == "tools" else os.getcwd()
 DATA = os.path.join(TDIR, "data")
 SEG_SEC = 600.0
 
@@ -23,8 +22,6 @@ def sha256(p):
 def main():
     os.makedirs(DATA, exist_ok=True)
     mix = json.load(open(os.path.join(HERE, "mix", "meta.json")))
-    srcs = open(os.path.join(HERE, "order.txt")).read().split("\n")
-    by_file = {os.path.basename(p): p for p in srcs}
 
     mpath = os.path.join(TDIR, "manifest.json")
     man = json.load(open(mpath)) if os.path.exists(mpath) else {"segments": []}
@@ -34,14 +31,14 @@ def main():
     for m in mix:
         if m["file"] in known:
             continue
-        src = by_file[m["file"]]
+        src = m.get("path")
         man["segments"].append({
             "index": idx,
             "stem": f"seg{idx:02d}",
             "source": m["file"],
             "duration_sec": SEG_SEC,
             "offset_sec": idx * SEG_SEC,
-            "sha256": sha256(src),
+            "sha256": sha256(src) if src and os.path.exists(src) else "",
             "channels": m["channels"],
             "sample_rate": m["sr"],
         })

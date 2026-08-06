@@ -39,7 +39,8 @@ def process(path, outwav, outnpy):
 
     sf.write(outwav, mixed, sr, subtype='PCM_16')
     np.save(outnpy, esn.astype(np.float32))
-    return dict(file=os.path.basename(path), frames=nf, sr=sr, channels=ch,
+    return dict(file=os.path.basename(path), path=os.path.abspath(path),
+                frames=nf, sr=sr, channels=ch,
                 frame_sec=FRAME/sr,
                 floor=[float(x) for x in floor],
                 active_share=[float(x) for x in (gain.argmax(axis=1) ==

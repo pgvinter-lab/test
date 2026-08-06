@@ -5,8 +5,9 @@ appending later audio is just: transcribe -> add to manifest -> re-run this.
 """
 import json, os, sys, hashlib, datetime, re
 
-REPO = "/home/user/test"
-TDIR = os.path.join(REPO, "transcripts")
+HERE = os.path.dirname(os.path.abspath(__file__))
+# tools/ lives inside transcripts/; fall back to CWD if run from elsewhere.
+TDIR = os.path.dirname(HERE) if os.path.basename(HERE) == "tools" else os.getcwd()
 DATA = os.path.join(TDIR, "data")
 
 # Microphone -> courtroom role. Set from observed content; unknown mics stay generic.
