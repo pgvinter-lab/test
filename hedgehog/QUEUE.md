@@ -8,6 +8,15 @@
 - [ ] Create evidence directory conventions and machine-readable result schema.
 - [ ] Establish CI that rejects unsupported completion claims and missing evidence links.
 
+## P0 — SK Companies flagship private workloads
+
+- [ ] Produce a technical feasibility and legal-boundary matrix for `FAMILY_MEDIA_DIGEST_PRODUCT.md`.
+- [ ] Prototype Android collection using UsageStatsManager and NotificationListenerService on synthetic/test accounts.
+- [ ] Verify TikTok export contents and latency using a test account.
+- [ ] Verify Meta Family Center data available to supervising parents and distinguish FULL, PARTIAL, and METADATA_ONLY conversation coverage.
+- [ ] Prototype Life360 and Family Link context ingestion using authorized notifications/events and document unavailable API surfaces.
+- [ ] Build a synthetic daily digest pipeline with concern-specific alerts and false-positive scoring.
+
 ## P1 — Existing-work inventory
 
 - [ ] Map llama.cpp/GGML CUDA, RPC, MoE, CPU offload, and device-limit capabilities.
