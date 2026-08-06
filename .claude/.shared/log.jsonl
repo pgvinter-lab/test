@@ -1,0 +1,1 @@
+{"ts": "2026-08-06T15:41:16.653768Z", "type": "summary", "task": "court-audio-transcription", "agent": "cowork", "from": "cowork", "to": "code", "msg": "Transcribed 50 min of 4-channel court hearing audio (5x10min) locally with Whisper medium.en ONNX; generated draft transcript + appendable pipeline", "refs": ["transcripts/court-hearing.md"], "confidence": 0.8}
