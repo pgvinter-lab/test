@@ -1,0 +1,18 @@
+{
+  "0": {
+    "label": "BENCH / WITNESS STAND",
+    "basis": "Carries the judge's procedural speech throughout (calling the case, rulings, timekeeping). From Segment 2 onward it also carries the witness, after the court moved Ms. Scheigat to the witness stand when Mr. Gvinter arrived. The bench and stand are adjacent, so one channel serves both."
+  },
+  "1": {
+    "label": "RESPONDENT — Mr. Philip Gvinter (self-represented)",
+    "basis": "Silent until Mr. Gvinter arrives late in Segment 2; dominant thereafter during his cross-examination of Ms. Scheigat in Segments 4-5."
+  },
+  "2": {
+    "label": "PLAINTIFF'S TABLE — Ms. Grover (counsel) and Ms. Scheigat",
+    "basis": "Carries counsel's appearance and direct examination, and Ms. Scheigat's early testimony given from counsel table before she was moved to the stand. Also carries the objection in Segment 4."
+  },
+  "3": {
+    "label": "CLERK / COURTROOM STAFF",
+    "basis": "Brief administrative utterances only, e.g. the request for exhibit stickers."
+  }
+}

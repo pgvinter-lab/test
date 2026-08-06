@@ -1,0 +1,18 @@
+{
+  "note": "Proper nouns are the least reliable part of ASR output. Every entry below is unverified: the 'heard as' column lists the literal variants the recogniser produced across the recording. Confirm against the audio or the court file before relying on any spelling.",
+  "entries": [
+    {"best_guess": "Gvinter, Philip", "role": "Respondent / father, self-represented", "heard_as": ["Gavinter","Giventer","Govinter","Covinter","Coventer","Gaventer","Gventer","Kavinta","Gavinta","Vinter","DeMinga"], "verified": false, "source": "Gave his name on the record in Segment 5 as 'Philip Giventer'; spelling here follows the filer's own email address."},
+    {"best_guess": "Scheigat, Susan Lisa", "role": "Plaintiff / mother", "heard_as": ["Scheigat","Shagga","Chaga","Scheig","Scheigler","Scheiger","Shaiga","Susan Lee"], "verified": false, "source": "Spelled her surname on the record in Segment 1, captured only as far as 'S-C-H-E-I-G-E'."},
+    {"best_guess": "Grover, Anne", "role": "Counsel for plaintiff", "heard_as": ["Anne Grover","Ms. O'Connell"], "verified": false, "source": "Entered her appearance in Segment 1; the later 'O'Connell' rendering may be a second name or a recognition error."},
+    {"best_guess": "McAuliffe", "role": "Presiding judge (emergency juvenile duty)", "heard_as": ["McAuliffe"], "verified": false, "source": "Named by counsel in Segment 1."},
+    {"best_guess": "Ayers", "role": "Judge referenced as off duty that day", "heard_as": ["Ayers"], "verified": false, "source": "Segment 1."},
+    {"best_guess": "Elon", "role": "Child, age 11", "heard_as": ["Elon","Elan","Eli","Yulan","Yvonne","Glenn","Elana","Yolanda","De La"], "verified": false, "source": "Named throughout; the variants are recognition drift on the same name."},
+    {"best_guess": "Samantha", "role": "Child, age 7", "heard_as": ["Samantha"], "verified": false, "source": "Named throughout."},
+    {"best_guess": "Hurdle, Jeff", "role": "Third party, stated age 59", "heard_as": ["Jeff Hurdle","Hertel","hurdles"], "verified": false, "source": "Segments 2-3."},
+    {"best_guess": "Maske, Dr. Holly", "role": "Clinician referenced", "heard_as": ["Holly Maske","Holly"], "verified": false, "source": "Segment 4."},
+    {"best_guess": "Chestnut, Sonia", "role": "Former therapist referenced", "heard_as": ["Sonia Chestnut","Sonya Chestnut"], "verified": false, "source": "Segment 4."},
+    {"best_guess": "Cruz, Sylvia", "role": "Current therapist referenced", "heard_as": ["Sylvia Cruz"], "verified": false, "source": "Segment 4."},
+    {"best_guess": "Brook Lane Hospital", "role": "Psychiatric facility referenced", "heard_as": ["Brook Lane","Brooklyn"], "verified": false, "source": "Segment 3; 'Brooklyn' is almost certainly a mis-recognition."},
+    {"best_guess": "Suburban Hospital", "role": "Hospital referenced", "heard_as": ["Suburban"], "verified": false, "source": "Segment 3."}
+  ]
+}
