@@ -26,12 +26,13 @@ At the end of every completed AGY/Wolverine work cycle:
 
 1. Copy only new or changed deliverables into the outbox while preserving relative paths.
 2. Generate `manifests\handoff.json` containing relative path, byte size, SHA-256, source agent, source task, created time, modified time, and sensitivity classification.
-3. Never place secrets, API keys, credentials, customer data, private legal records, model weights, or sensitive production infrastructure details in the public repository.
-4. Commit safe artifacts to `pgvinter-lab/test` on branch `hedgehog/agy-continuous` under `hedgehog/outbox/`.
-5. Put sensitive or oversized artifacts only in the local outbox and record a metadata-only placeholder in GitHub.
-6. Do not delete local source files after staging.
-7. Mark an artifact `READY_FOR_DRIVE=true` only after hashing and successful local verification.
-8. Record failures in `manifests\handoff-errors.log`.
+3. Never place actual secrets, API keys, credentials, customer data, private legal records, model weights, or live production payloads containing private data in the public repository.
+4. Treat Hedgehog architecture, topology, system design, implementation details, ADRs, threat models, synthetic fixtures, benchmark methods and results, and reproducibility evidence as safe for GitHub and Google Drive unless a specific artifact embeds excluded data from item 3.
+5. Commit safe artifacts to `pgvinter-lab/test` on branch `hedgehog/agy-continuous` under their canonical `hedgehog/` paths or, for transport-only bulk files, under `hedgehog/outbox/`.
+6. Put genuinely private or oversized artifacts only in the local outbox and record a metadata-only placeholder in GitHub.
+7. Do not delete local source files after staging.
+8. Mark an artifact `READY_FOR_DRIVE=true` only after hashing and successful local verification.
+9. Record failures in `manifests\handoff-errors.log`.
 
 ## Daily cloud-side sync
 
@@ -40,9 +41,10 @@ The ChatGPT daily monitor runs at 4:20 a.m. America/New_York and:
 1. Reviews GitHub `hedgehog/outbox/`, `hedgehog/reports/`, commits, issues, CI, and status.
 2. Uploads new safe artifacts to Google Drive folder `SK-O/Hedgehog/AGY Daily Drops`.
 3. Preserves filenames and creates a dated subfolder when needed.
-4. Verifies Drive metadata after upload.
-5. Never deletes the source copy.
-6. Reports failed hashes, missing evidence, stale work, unsupported completion claims, and blockers.
+4. May additionally archive canonical design and system artifacts under `SK-O/Hedgehog/System`.
+5. Verifies Drive metadata after upload.
+6. Never deletes the source copy.
+7. Reports failed hashes, missing evidence, stale work, unsupported completion claims, and blockers.
 
 ## Direct local-disk limitation
 
