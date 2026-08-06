@@ -1,0 +1,56 @@
+{
+  "segments": [
+    {
+      "index": 0,
+      "stem": "seg00",
+      "source": "0e1b6de8-thg6e300.ogg",
+      "duration_sec": 600.0,
+      "offset_sec": 0.0,
+      "sha256": "093f3826c82038f02930075974eff5955eb641c019afef9265ee2e1e79383955",
+      "channels": 4,
+      "sample_rate": 16000
+    },
+    {
+      "index": 1,
+      "stem": "seg01",
+      "source": "ab0029ba-thg6e301.ogg",
+      "duration_sec": 600.0,
+      "offset_sec": 600.0,
+      "sha256": "44d161eaf9e4fe6070f212651c434aa3b2fdc034ccfcfed60a1bd7ba738cfeb2",
+      "channels": 4,
+      "sample_rate": 16000
+    },
+    {
+      "index": 2,
+      "stem": "seg02",
+      "source": "45598ea6-thg6e302.ogg",
+      "duration_sec": 600.0,
+      "offset_sec": 1200.0,
+      "sha256": "896206384a941a803aeda653d38476cc615356b7ed5fad8e59aabea818419f63",
+      "channels": 4,
+      "sample_rate": 16000
+    },
+    {
+      "index": 3,
+      "stem": "seg03",
+      "source": "dc5fa381-thg6e303.ogg",
+      "duration_sec": 600.0,
+      "offset_sec": 1800.0,
+      "sha256": "a078dc977f43e781ff91b8e2523db55229c7be38bbfdfb00c85cdd01d752c4c5",
+      "channels": 4,
+      "sample_rate": 16000
+    },
+    {
+      "index": 4,
+      "stem": "seg04",
+      "source": "5d894eb2-thg6e304.ogg",
+      "duration_sec": 600.0,
+      "offset_sec": 2400.0,
+      "sha256": "09ba11de31edc19b209564ead19f3d3054f115696c32ca3fbb23951ac82a786b",
+      "channels": 4,
+      "sample_rate": 16000
+    }
+  ],
+  "built": "2026-08-06",
+  "method": "4-channel Dugan-style automix -> Silero VAD -> OpenAI Whisper medium.en (ONNX int8, sherpa-onnx), run locally in-session; speaker attribution from per-microphone channel energy"
+}
