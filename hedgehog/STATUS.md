@@ -12,12 +12,14 @@ Program bootstrap and architecture validation before hardware arrival.
 - Whole P100 passthrough and NUMA-aware placement are required.
 - SK Companies is intended to run production workloads on Hedgehog, with commercial frontier models retained for high-value review, legality sanity checks, and escalation.
 - Hedgehog architecture, topology, system design, implementation details, ADRs, threat models, synthetic fixtures, and benchmark evidence may be stored in the public GitHub repository or under `SK-O/Hedgehog/System` in Google Drive.
+- As of 2026-08-08, branch `hedgehog/agy-continuous` has had no engineering commit since 2026-08-06 09:09 UTC. The expected hourly AGY loop is therefore not producing repository-visible work.
+- No `hedgehog/evidence/` or `hedgehog/outbox/` directory exists, and the branch head has no CI status checks.
 
 ## Current blockers
 
-- Physical GPU hosts, P100s, and fast-network hardware have not arrived or been selected.
-- The scheduled Antigravity trigger still requires creation in the user's Google environment.
+- The scheduled Antigravity trigger is not producing the required evidence-producing hourly work cycles and still appears to require activation or repair in the user's Google environment.
 - The evidence schema and CI verification gate do not yet exist.
+- Physical P100 and fast-network hardware are not yet available for measured hardware baselines; architecture, simulation, source analysis, infrastructure-as-code, and synthetic testing remain unblocked.
 
 ## Artifact boundary
 
@@ -25,4 +27,4 @@ Do not publish actual secrets, credentials, customer data, private legal records
 
 ## Next task
 
-Convert the doctrine into a dependency-ordered GitHub issue graph and write ADR-0001.
+Restore or activate the persistent AGY loop, then convert the doctrine into a dependency-ordered GitHub issue graph and write ADR-0001. In parallel, create the evidence schema and CI gate so future completion claims are machine-verifiable.
