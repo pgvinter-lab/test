@@ -12,8 +12,8 @@ Program bootstrap and architecture validation before hardware arrival.
 - Whole P100 passthrough and NUMA-aware placement are required.
 - SK Companies is intended to run production workloads on Hedgehog, with commercial frontier models retained for high-value review, legality sanity checks, and escalation.
 - Hedgehog architecture, topology, system design, implementation details, ADRs, threat models, synthetic fixtures, and benchmark evidence may be stored in the public GitHub repository or under `SK-O/Hedgehog/System` in Google Drive.
-- As of 2026-08-08, branch `hedgehog/agy-continuous` has had no engineering commit since 2026-08-06 09:09 UTC. The expected hourly AGY loop is therefore not producing repository-visible work.
-- No `hedgehog/evidence/` or `hedgehog/outbox/` directory exists, and the branch head has no CI status checks.
+- As of 2026-08-12, branch `hedgehog/agy-continuous` has had no AGY engineering commit since 2026-08-06 09:09 UTC. The latest branch commit before this monitor run was the 2026-08-11 daily monitor report, so the expected hourly AGY loop is still not producing repository-visible engineering work.
+- No `hedgehog/evidence/` or `hedgehog/outbox/` directory exists, and the latest branch head has no CI status checks.
 
 ## Current blockers
 
@@ -27,4 +27,4 @@ Do not publish actual secrets, credentials, customer data, private legal records
 
 ## Next task
 
-Restore or activate the persistent AGY loop, then convert the doctrine into a dependency-ordered GitHub issue graph and write ADR-0001. In parallel, create the evidence schema and CI gate so future completion claims are machine-verifiable.
+Restore or activate the persistent AGY loop and prove it with a scheduled evidence-bearing commit, then convert the doctrine into a dependency-ordered GitHub issue graph and write ADR-0001. In parallel, create the evidence schema and CI gate so future completion claims are machine-verifiable.
