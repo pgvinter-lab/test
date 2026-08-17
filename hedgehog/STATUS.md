@@ -12,9 +12,9 @@ Program bootstrap and architecture validation before hardware arrival.
 - Whole P100 passthrough and NUMA-aware placement are required.
 - SK Companies is intended to run production workloads on Hedgehog, with commercial frontier models retained for high-value review, legality sanity checks, and escalation.
 - Hedgehog architecture, topology, system design, implementation details, ADRs, threat models, synthetic fixtures, and benchmark evidence may be stored in the public GitHub repository or under `SK-O/Hedgehog/System` in Google Drive.
-- As of 2026-08-16, branch `hedgehog/agy-continuous` has had no AGY engineering commit since 2026-08-06 09:09 UTC. The latest branch commit before this monitor run was the 2026-08-15 daily monitor report, so the expected hourly AGY loop is still not producing repository-visible engineering work.
+- As of 2026-08-17, branch `hedgehog/agy-continuous` has had no AGY engineering commit since 2026-08-06 09:09 UTC. The latest branch commit before this monitor run was the 2026-08-16 daily monitor status refresh, so the expected hourly AGY loop is still not producing repository-visible engineering work.
 - No `hedgehog/evidence/` or `hedgehog/outbox/` directory exists, and the pre-monitor branch head has no CI status checks.
-- The daily monitor/handoff loop has now executed on consecutive days, 2026-08-15 and 2026-08-16. The earlier cadence interruption is therefore no longer an active blocker, though recurrence should be monitored.
+- The daily monitor/handoff loop has now executed on three consecutive days, 2026-08-15 through 2026-08-17. The earlier cadence interruption is no longer an active blocker.
 
 ## Current blockers
 
