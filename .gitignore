@@ -9,3 +9,6 @@ Thumbs.db
 # Python bytecode (build artifacts, never shared).
 __pycache__/
 *.pyc
+
+# Local Hedgehog handoff transport; copied artifacts are uploaded separately.
+WOLVERINE_OUTBOX/

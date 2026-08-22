@@ -5,7 +5,7 @@
 - [ ] Convert the 60-day doctrine into a dependency-ordered GitHub issue graph.
 - [ ] Produce ADR-0001: virtualized diskless compute nodes, one persistent storage/control node, whole-GPU passthrough, and 100GbE/EDR fabric.
 - [ ] Produce Threat Model v0.1 for the cluster and SK Companies tenant workloads.
-- [ ] Create evidence directory conventions and machine-readable result schema.
+- [x] Create evidence directory conventions and machine-readable result schema. <!-- evidence: hedgehog/evidence/bootstrap/evidence-contract-v1.json -->
 - [ ] Establish CI that rejects unsupported completion claims and missing evidence links.
 
 ## P0 — SK Companies flagship private workloads

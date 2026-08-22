@@ -1,0 +1,31 @@
+name: Hedgehog evidence gate
+
+on:
+  push:
+    branches:
+      - hedgehog/agy-continuous
+    paths:
+      - "hedgehog/**"
+      - ".github/workflows/hedgehog-evidence.yml"
+  pull_request:
+    paths:
+      - "hedgehog/**"
+      - ".github/workflows/hedgehog-evidence.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify evidence manifests and queue claims
+        run: python hedgehog/scripts/verify_evidence.py
+      - name: Run Hedgehog verifier unit tests
+        run: python -m unittest discover -s hedgehog/tests -p "test_*.py"

@@ -1,0 +1,55 @@
+{
+    "schema_version":  "1.0",
+    "evidence_id":  "hh-evidence-contract-v1",
+    "task_id":  "HH-P0-EVIDENCE-CONTRACT",
+    "title":  "Machine-readable evidence contract and verifier",
+    "status":  "pass",
+    "generated_at":  "2026-08-22T19:07:50.9752908Z",
+    "producer":  "cowork",
+    "environment":  {
+                        "os":  "Windows 10/11 x64",
+                        "python":  "Python 3.12.10"
+                    },
+    "commands":  [
+                     "python hedgehog/scripts/verify_evidence.py",
+                     "python -m unittest discover -s hedgehog/tests -p \"test_*.py\""
+                 ],
+    "checks":  [
+                   {
+                       "name":  "evidence verifier baseline",
+                       "outcome":  "pass",
+                       "details":  "Verifier accepted repository with no unsupported checked queue items."
+                   },
+                   {
+                       "name":  "verifier unit tests",
+                       "outcome":  "pass",
+                       "details":  "4 tests passed, including CRLF normalization and unsupported-completion rejection."
+                   }
+               ],
+    "artifacts":  [
+                      {
+                          "path":  "hedgehog/evidence/README.md",
+                          "sha256":  "9e3fcda57d242dbd804fa232f69fd2a6288212e5f8a702491c15602c302b4264",
+                          "hash_mode":  "lf-normalized"
+                      },
+                      {
+                          "path":  "hedgehog/evidence/schema.json",
+                          "sha256":  "7a38f602680bd0b98ab7875e085d92016181de8a1c6dfb5d81df1346bae01c58",
+                          "hash_mode":  "lf-normalized"
+                      },
+                      {
+                          "path":  "hedgehog/scripts/verify_evidence.py",
+                          "sha256":  "ddfe4ea6a076e94f6d5a08074648680cd58f806a8bd34943c7365b1a5e0a2f1e",
+                          "hash_mode":  "lf-normalized"
+                      },
+                      {
+                          "path":  "hedgehog/tests/test_verify_evidence.py",
+                          "sha256":  "2313df1bceb97b8610a3e1cef0ab2e06b095afa03ba494ae1651ff7e426074eb",
+                          "hash_mode":  "lf-normalized"
+                      }
+                  ],
+    "notes":  [
+                  "Schema uses JSON Schema draft 2020-12.",
+                  "Completion claims require a passing manifest annotation in QUEUE.md."
+              ]
+}
