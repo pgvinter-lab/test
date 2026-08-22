@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0",
+  "evidence_id": "hh-agy-20260822t203110z-issue-graph-validator",
+  "task_id": "HH-AGY-20260822T203110Z",
+  "title": "Dependency-ordered issue graph validator implementation",
+  "status": "pass",
+  "generated_at": "2026-08-22T20:45:49.7124810Z",
+  "producer": "codex",
+  "environment": {
+    "os": "Microsoft Windows NT 10.0.26200.0",
+    "powershell": "5.1.26100.9168",
+    "python": "3.12.10",
+    "python_executable": "C:\\ProgramData\\HedgehogPython312\\python.exe",
+    "working_directory": "C:\\SK-O\\Hedgehog\\hedgehog",
+    "hardware_mode": "hardware-absent; structural validation only"
+  },
+  "commands": [
+    "python -m unittest tests.test_validate_issue_graph.IssueGraphValidatorTests.test_accepts_valid_graph_in_dependency_order -v",
+    "python tests/test_validate_issue_graph.py -v",
+    "python scripts/validate_issue_graph.py planning/github-issue-graph-v1.json",
+    "python -m unittest discover -s tests -p \"test_*.py\"",
+    "python scripts/verify_evidence.py"
+  ],
+  "checks": [
+    {
+      "name": "preserved acceptance contract RED/GREEN",
+      "outcome": "pass",
+      "details": "RED failed because scripts/validate_issue_graph.py was absent; GREEN produced the exact two-node dependency-order success output."
+    },
+    {
+      "name": "validator behavior coverage",
+      "outcome": "pass",
+      "details": "Eight subprocess CLI tests cover valid ordering, later dependencies, duplicate IDs, cycles via graphlib, undefined gates, 13 required fields, non-empty acceptance, and schema version."
+    },
+    {
+      "name": "real issue graph validation",
+      "outcome": "pass",
+      "details": "The validator parsed planning/github-issue-graph-v1.json and reported PASS for 36 nodes in dependency order."
+    },
+    {
+      "name": "Hedgehog unit suite precheck",
+      "outcome": "pass",
+      "details": "python -m unittest discover -s tests -p \"test_*.py\" completed 12 tests with OK before manifest finalization."
+    },
+    {
+      "name": "final evidence gate and fresh unit suite",
+      "outcome": "pass",
+      "details": "Post-manifest staging run validated 3 manifests and 1 checked queue item; the fresh full suite completed 12 tests with OK. Final commands are rerun after this status transition."
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "hedgehog/planning/github-issue-graph-v1.json",
+      "sha256": "1863bcee70eb73e24d26a2206f7018c9c6b8ffda05ea6f6bdcde0b42cd40cf72",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/scripts/validate_issue_graph.py",
+      "sha256": "00795e2bfc76cbe9a15be942799d3bdc363b99b0eab594186ebe4aba9ed766f5",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/tests/test_validate_issue_graph.py",
+      "sha256": "730a144827cbe92dbaa1f799a5bc23f91d26f74df6f39e2ef96f7e7cd91f22e9",
+      "hash_mode": "lf-normalized"
+    }
+  ],
+  "notes": [
+    "This manifest proves the local validator cycle, not the owner-gated GitHub issue import; the P0 queue item remains unchecked.",
+    "No physical hardware, private payload, credential, external communication, GitHub mutation, commit, or push was used.",
+    "Prompt route used SERIAL execution with prompt-router, planning-with-files, git-guardrails, test-driven-development, and verification-before-completion.",
+    "Rollback is removal of scripts/validate_issue_graph.py and restoration of tests/test_validate_issue_graph.py plus the continued-cycle manifest; the initial RED is pre-state evidence that the validator did not exist."
+  ]
+}

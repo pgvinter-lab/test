@@ -1,0 +1,717 @@
+{
+  "schema_version": "1.0",
+  "graph_id": "hedgehog-60-day-issue-graph-v1",
+  "title": "Project Hedgehog dependency-ordered 60-day issue graph",
+  "repository": "pgvinter-lab/test",
+  "target_branch": "hedgehog/agy-continuous",
+  "generated_for_task": "HH-AGY-20260822T194555Z",
+  "graph_status": "local-draft",
+  "source_documents": [
+    "hedgehog/HEDGEHOG_ENGINEERING_DOCTRINE.md",
+    "hedgehog/AGY_CONTINUOUS_RUNBOOK.md",
+    "hedgehog/QUEUE.md"
+  ],
+  "import_policy": {
+    "external_mutation_performed": false,
+    "owner_approval_required": true,
+    "issue_state_mapping": {
+      "planned": "open",
+      "partial": "open",
+      "complete": "closed"
+    }
+  },
+  "ordering_contract": "Nodes are ordered so every dependency appears before its dependent node.",
+  "gate_definitions": {
+    "owner-approval": "An external write, publication, or contact requires explicit owner approval.",
+    "hardware-required": "Acceptance requires measurements from physical Hedgehog hardware; simulation cannot satisfy it.",
+    "test-account-required": "Acceptance requires an authorized synthetic or test account, never a private live account.",
+    "authorized-target-only": "Security or fault testing is limited to owned, simulated, or explicitly authorized targets."
+  },
+  "nodes": [
+    {
+      "id": "hh-p0-issue-graph",
+      "title": "Import the dependency-ordered 60-day Hedgehog issue graph",
+      "description": "Review this local DAG and create or update the corresponding GitHub issues without changing dependency semantics.",
+      "priority": "P0",
+      "workstream": "program-bootstrap",
+      "milestone": "days-1-10",
+      "status": "partial",
+      "labels": ["hedgehog", "program-bootstrap", "planning"],
+      "dependencies": [],
+      "gates": ["owner-approval"],
+      "acceptance": [
+        "Every node is represented by a GitHub issue or an explicitly linked existing issue.",
+        "Dependencies and milestone labels match this reviewed graph.",
+        "The import receipt records issue URLs and the source graph hash."
+      ],
+      "evidence_types": ["validated-graph", "issue-url-map", "import-receipt"],
+      "source_refs": ["QUEUE.md#p0--program-bootstrap", "AGY_CONTINUOUS_RUNBOOK.md#first-tasks"]
+    },
+    {
+      "id": "hh-p0-evidence-contract",
+      "title": "Create evidence directory conventions and a machine-readable result schema",
+      "description": "Gate checked queue items on valid manifests, artifact hashes, and explicit passing checks.",
+      "priority": "P0",
+      "workstream": "program-bootstrap",
+      "milestone": "days-1-10",
+      "status": "complete",
+      "labels": ["hedgehog", "program-bootstrap", "evidence"],
+      "dependencies": [],
+      "gates": [],
+      "acceptance": [
+        "The evidence schema and verifier reject unsupported completion claims.",
+        "Unit tests cover cross-platform hashing and queue annotations."
+      ],
+      "evidence_types": ["unit-tests", "artifact-hashes"],
+      "evidence_ref": "hedgehog/evidence/bootstrap/evidence-contract-v1.json",
+      "source_refs": ["QUEUE.md#p0--program-bootstrap", "AGY_CONTINUOUS_RUNBOOK.md#evidence-gate"]
+    },
+    {
+      "id": "hh-p1-map-llama-ggml",
+      "title": "Map llama.cpp and GGML CUDA, RPC, MoE, CPU-offload, and device-limit capabilities",
+      "description": "Record current upstream capabilities, version-pinned source references, and the exact Hedgehog gaps before custom runtime work.",
+      "priority": "P1",
+      "workstream": "existing-work-inventory",
+      "milestone": "days-1-10",
+      "status": "planned",
+      "labels": ["hedgehog", "source-analysis", "llama-cpp", "ggml"],
+      "dependencies": ["hh-p0-evidence-contract"],
+      "gates": [],
+      "acceptance": [
+        "The inventory cites pinned upstream commits and primary source paths.",
+        "Supported capabilities and missing Hedgehog layers are separated explicitly.",
+        "Reproduction commands and limitations are recorded."
+      ],
+      "evidence_types": ["source-map", "version-inventory", "minimal-reproducer"],
+      "source_refs": ["QUEUE.md#p1--existing-work-inventory", "HEDGEHOG_ENGINEERING_DOCTRINE.md#workstream-d-single-host-inference"]
+    },
+    {
+      "id": "hh-p1-map-transport",
+      "title": "Map UCX, MPI, RDMA-Core, RoCEv2, and InfiniBand options for P100-era systems",
+      "description": "Compare established transport stacks against activation-routing, security, operability, and P100-era platform requirements.",
+      "priority": "P1",
+      "workstream": "network-transport",
+      "milestone": "days-1-10",
+      "status": "planned",
+      "labels": ["hedgehog", "source-analysis", "networking", "rdma"],
+      "dependencies": ["hh-p0-evidence-contract"],
+      "gates": [],
+      "acceptance": [
+        "The matrix cites primary documentation and pinned versions.",
+        "TCP, RoCEv2, InfiniBand, UCX, MPI, and RDMA-Core tradeoffs are compared.",
+        "Unverified GPUDirect assumptions are labeled for hardware measurement."
+      ],
+      "evidence_types": ["source-map", "decision-matrix", "reproduction-plan"],
+      "source_refs": ["QUEUE.md#p1--existing-work-inventory", "HEDGEHOG_ENGINEERING_DOCTRINE.md#workstream-e-network-transport"]
+    },
+    {
+      "id": "hh-p1-map-virtualization",
+      "title": "Map KVM, libvirt, OpenNebula, and minimal alternatives for stateless hypervisors",
+      "description": "Select the smallest established control-plane components that satisfy diskless rebuild, passthrough, placement, and recovery requirements.",
+      "priority": "P1",
+      "workstream": "reproducible-infrastructure",
+      "milestone": "days-1-10",
+      "status": "planned",
+      "labels": ["hedgehog", "source-analysis", "virtualization"],
+      "dependencies": ["hh-p0-evidence-contract"],
+      "gates": [],
+      "acceptance": [
+        "The component matrix covers immutable boot, libvirt APIs, placement, fencing, and failure recovery.",
+        "Operational complexity and security surfaces are compared.",
+        "The recommended baseline identifies rejected alternatives and reasons."
+      ],
+      "evidence_types": ["source-map", "decision-matrix"],
+      "source_refs": ["QUEUE.md#p1--existing-work-inventory", "HEDGEHOG_ENGINEERING_DOCTRINE.md#workstream-b-reproducible-infrastructure"]
+    },
+    {
+      "id": "hh-p1-map-pascal-limitations",
+      "title": "Identify P100 and Pascal limitations in current inference stacks and CUDA versions",
+      "description": "Pin compiler, driver, compute-capability, kernel, quantization, and upstream-support constraints before building the CUDA environment.",
+      "priority": "P1",
+      "workstream": "single-host-inference",
+      "milestone": "days-1-10",
+      "status": "planned",
+      "labels": ["hedgehog", "source-analysis", "cuda", "pascal"],
+      "dependencies": ["hh-p1-map-llama-ggml"],
+      "gates": [],
+      "acceptance": [
+        "The matrix distinguishes documented support, build-only evidence, and hardware-measured evidence.",
+        "CUDA, compiler, and driver versions are pinned with primary references.",
+        "Known P100 kernel and quantization gaps have minimal reproducers or explicit test plans."
+      ],
+      "evidence_types": ["compatibility-matrix", "build-logs", "minimal-reproducer"],
+      "source_refs": ["QUEUE.md#p1--existing-work-inventory", "HEDGEHOG_ENGINEERING_DOCTRINE.md#workstream-d-single-host-inference"]
+    },
+    {
+      "id": "hh-p1-map-expert-parallel",
+      "title": "Identify existing expert-parallel implementations that Hedgehog can adapt",
+      "description": "Compare static ownership, routing, batching, backpressure, replication, and recovery semantics in established implementations.",
+      "priority": "P1",
+      "workstream": "distributed-moe",
+      "milestone": "days-1-10",
+      "status": "planned",
+      "labels": ["hedgehog", "source-analysis", "moe", "expert-parallel"],
+      "dependencies": ["hh-p1-map-llama-ggml"],
+      "gates": [],
+      "acceptance": [
+        "Candidate implementations are pinned to source versions and compared against Hedgehog requirements.",
+        "Reusable components are distinguished from missing integration layers.",
+        "License and upstream-divergence constraints are recorded."
+      ],
+      "evidence_types": ["source-map", "decision-matrix", "license-review"],
+      "source_refs": ["QUEUE.md#p1--existing-work-inventory", "HEDGEHOG_ENGINEERING_DOCTRINE.md#workstream-f-distributed-moe-execution"]
+    },
+    {
+      "id": "hh-p0-adr-0001",
+      "title": "Produce ADR-0001 for the virtualized diskless 100Gb fabric architecture",
+      "description": "Record the initial architecture for diskless compute nodes, persistent control/storage, whole-device passthrough, NUMA locality, and 100GbE or EDR fabric.",
+      "priority": "P0",
+      "workstream": "program-bootstrap",
+      "milestone": "days-1-10",
+      "status": "planned",
+      "labels": ["hedgehog", "architecture", "adr"],
+      "dependencies": ["hh-p1-map-transport", "hh-p1-map-virtualization"],
+      "gates": [],
+      "acceptance": [
+        "The ADR states context, decision, alternatives, consequences, and measurable assumptions.",
+        "Control, storage, management, and inference failure domains are explicit.",
+        "Hardware-dependent assumptions are listed as unverified rather than asserted."
+      ],
+      "evidence_types": ["adr", "assumption-register", "review-record"],
+      "source_refs": ["QUEUE.md#p0--program-bootstrap", "AGY_CONTINUOUS_RUNBOOK.md#first-tasks"]
+    },
+    {
+      "id": "hh-p0-threat-model-v0-1",
+      "title": "Produce Threat Model v0.1 for Hedgehog and SK Companies tenant workloads",
+      "description": "Define assets, trust boundaries, threat actors, abuse cases, controls, recovery requirements, and validation plans for the target architecture.",
+      "priority": "P0",
+      "workstream": "security",
+      "milestone": "days-1-10",
+      "status": "planned",
+      "labels": ["hedgehog", "security", "threat-model"],
+      "dependencies": ["hh-p0-adr-0001"],
+      "gates": ["authorized-target-only"],
+      "acceptance": [
+        "Management, storage, inference, development, and experimental trust boundaries are modeled.",
+        "Secrets, artifact provenance, egress, tenant isolation, audit, backup, and recovery threats have controls and tests.",
+        "Residual risks and owner decisions are explicit."
+      ],
+      "evidence_types": ["threat-model", "control-test-map", "review-record"],
+      "source_refs": ["QUEUE.md#p0--program-bootstrap", "HEDGEHOG_ENGINEERING_DOCTRINE.md#workstream-c-security"]
+    },
+    {
+      "id": "hh-p0-evidence-ci",
+      "title": "Establish CI that rejects unsupported completion claims and missing evidence links",
+      "description": "Run the existing evidence verifier and full Hedgehog unit suite on relevant repository changes.",
+      "priority": "P0",
+      "workstream": "program-bootstrap",
+      "milestone": "days-1-10",
+      "status": "planned",
+      "labels": ["hedgehog", "ci", "evidence"],
+      "dependencies": ["hh-p0-evidence-contract"],
+      "gates": ["owner-approval"],
+      "acceptance": [
+        "A repository workflow runs evidence verification and all Hedgehog unit tests.",
+        "A deliberately unsupported checked queue item causes a failing CI run.",
+        "A clean baseline produces a passing CI run with retained logs."
+      ],
+      "evidence_types": ["workflow", "negative-ci-run", "passing-ci-run"],
+      "source_refs": ["QUEUE.md#p0--program-bootstrap", "AGY_CONTINUOUS_RUNBOOK.md#evidence-gate"]
+    },
+    {
+      "id": "hh-p1-static-expert-simulation",
+      "title": "Build the static expert-ownership simulation",
+      "description": "Simulate deterministic model-expert ownership, activation routing, replica selection, load distribution, and worker loss without claiming hardware performance.",
+      "priority": "P1",
+      "workstream": "distributed-moe",
+      "milestone": "days-1-10",
+      "status": "planned",
+      "labels": ["hedgehog", "simulation", "moe"],
+      "dependencies": ["hh-p1-map-expert-parallel"],
+      "gates": [],
+      "acceptance": [
+        "Fixed seeds produce deterministic expert assignments and routes.",
+        "The simulation reports imbalance, replica placement, and dropped or retried work.",
+        "Fixtures distinguish simulated capacity from physical measurements."
+      ],
+      "evidence_types": ["simulation", "deterministic-tests", "synthetic-results"],
+      "source_refs": ["QUEUE.md#p1--simulation-and-test-harnesses", "AGY_CONTINUOUS_RUNBOOK.md#hardware-absent-mode"]
+    },
+    {
+      "id": "hh-p1-numerical-reference-tests",
+      "title": "Define numerical reference tests for distributed MoE execution",
+      "description": "Compare routed and aggregated outputs to a single-process reference across deterministic fixtures and tolerances.",
+      "priority": "P1",
+      "workstream": "distributed-moe",
+      "milestone": "days-21-30",
+      "status": "planned",
+      "labels": ["hedgehog", "correctness", "moe"],
+      "dependencies": ["hh-p1-static-expert-simulation"],
+      "gates": [],
+      "acceptance": [
+        "Reference fixtures cover routing, aggregation, duplicate experts, and empty routes.",
+        "Tolerances are justified independently of the implementation under test.",
+        "Injected routing or aggregation mutations cause deterministic failures."
+      ],
+      "evidence_types": ["reference-tests", "mutation-results", "fixtures"],
+      "source_refs": ["QUEUE.md#p1--simulation-and-test-harnesses", "HEDGEHOG_ENGINEERING_DOCTRINE.md#workstream-f-distributed-moe-execution"]
+    },
+    {
+      "id": "hh-p1-activation-transport-benchmark",
+      "title": "Build the activation-routing transport benchmark",
+      "description": "Measure synthetic activation payload latency, throughput, batching, compression, and backpressure over locally available transports.",
+      "priority": "P1",
+      "workstream": "network-transport",
+      "milestone": "days-11-20",
+      "status": "planned",
+      "labels": ["hedgehog", "benchmark", "networking"],
+      "dependencies": ["hh-p1-map-transport", "hh-p1-static-expert-simulation"],
+      "gates": [],
+      "acceptance": [
+        "Payload distributions are derived from explicit synthetic MoE shapes.",
+        "Commands, versions, warmup, repetitions, raw samples, and summary statistics are retained.",
+        "Local simulation results are not labeled as 100Gb fabric measurements."
+      ],
+      "evidence_types": ["benchmark-harness", "raw-samples", "environment-manifest"],
+      "source_refs": ["QUEUE.md#p1--simulation-and-test-harnesses", "HEDGEHOG_ENGINEERING_DOCTRINE.md#workstream-e-network-transport"]
+    },
+    {
+      "id": "hh-p1-topology-fixture-parser",
+      "title": "Build a topology fixture parser for NUMA, PCIe, GPUs, NICs, and memory channels",
+      "description": "Normalize captured and synthetic topology sources into a deterministic machine-readable hardware graph.",
+      "priority": "P1",
+      "workstream": "hardware-characterization",
+      "milestone": "days-1-10",
+      "status": "planned",
+      "labels": ["hedgehog", "topology", "numa", "pcie"],
+      "dependencies": ["hh-p0-adr-0001"],
+      "gates": [],
+      "acceptance": [
+        "Synthetic fixtures cover multiple NUMA roots, missing fields, and malformed data.",
+        "The normalized graph preserves source provenance and unknown values.",
+        "Placement consumers receive stable identifiers and explicit locality relationships."
+      ],
+      "evidence_types": ["parser", "fixtures", "unit-tests"],
+      "source_refs": ["QUEUE.md#p1--simulation-and-test-harnesses", "HEDGEHOG_ENGINEERING_DOCTRINE.md#workstream-a-hardware-characterization"]
+    },
+    {
+      "id": "hh-p1-failure-injection-harness",
+      "title": "Define failure-injection tests for worker, NIC, VM, and expert loss",
+      "description": "Create deterministic simulated faults and recovery assertions before hardware-backed fencing and failover tests.",
+      "priority": "P1",
+      "workstream": "scheduling-virtualization",
+      "milestone": "days-31-40",
+      "status": "planned",
+      "labels": ["hedgehog", "fault-injection", "recovery"],
+      "dependencies": ["hh-p0-threat-model-v0-1", "hh-p1-static-expert-simulation"],
+      "gates": ["authorized-target-only"],
+      "acceptance": [
+        "Each fault names detection, containment, retry, fencing, and recovery expectations.",
+        "Deterministic simulations cover worker, VM, NIC-path, and expert-replica loss.",
+        "Recovery time and correctness are recorded separately."
+      ],
+      "evidence_types": ["fault-harness", "deterministic-tests", "recovery-log"],
+      "source_refs": ["QUEUE.md#p1--simulation-and-test-harnesses", "HEDGEHOG_ENGINEERING_DOCTRINE.md#days-31-40"]
+    },
+    {
+      "id": "hh-p2-hardware-inventory-collector",
+      "title": "Create a one-command hardware inventory collector",
+      "description": "Collect CPU, NUMA, DIMM, PCIe, GPU, NIC, firmware, IOMMU, sensor, and RDMA facts with source provenance.",
+      "priority": "P2",
+      "workstream": "hardware-characterization",
+      "milestone": "days-1-10",
+      "status": "planned",
+      "labels": ["hedgehog", "inventory", "hardware"],
+      "dependencies": ["hh-p1-topology-fixture-parser"],
+      "gates": ["hardware-required"],
+      "acceptance": [
+        "One documented command emits a schema-valid inventory and raw source captures.",
+        "Unknown or unavailable values remain explicit instead of inferred.",
+        "A second run on the same unchanged host is reproducibly comparable."
+      ],
+      "evidence_types": ["collector", "raw-inventory", "normalized-inventory"],
+      "source_refs": ["QUEUE.md#p2--hardware-arrival-readiness", "HEDGEHOG_ENGINEERING_DOCTRINE.md#workstream-a-hardware-characterization"]
+    },
+    {
+      "id": "hh-p2-cuda12-pascal-environment",
+      "title": "Create a reproducible CUDA 12 and Pascal environment",
+      "description": "Pin base image, compiler, CUDA toolkit, drivers, libraries, build flags, and provenance for P100-compatible workloads.",
+      "priority": "P2",
+      "workstream": "reproducible-infrastructure",
+      "milestone": "days-1-10",
+      "status": "planned",
+      "labels": ["hedgehog", "cuda", "reproducibility"],
+      "dependencies": ["hh-p1-map-pascal-limitations"],
+      "gates": [],
+      "acceptance": [
+        "The environment is generated from pinned inputs with artifact provenance.",
+        "Pascal-target builds complete in an available build environment.",
+        "Runtime claims remain blocked until P100 execution evidence exists."
+      ],
+      "evidence_types": ["environment-lock", "build-log", "sbom"],
+      "source_refs": ["QUEUE.md#p2--hardware-arrival-readiness", "AGY_CONTINUOUS_RUNBOOK.md#hardware-absent-mode"]
+    },
+    {
+      "id": "hh-p2-ipxe-hypervisor-prototype",
+      "title": "Create the PXE and iPXE immutable hypervisor prototype",
+      "description": "Build a reproducible stateless boot flow with authenticated artifacts, central configuration, and replacement-node registration.",
+      "priority": "P2",
+      "workstream": "reproducible-infrastructure",
+      "milestone": "days-11-20",
+      "status": "planned",
+      "labels": ["hedgehog", "ipxe", "immutable-infrastructure"],
+      "dependencies": ["hh-p0-adr-0001", "hh-p0-threat-model-v0-1", "hh-p1-map-virtualization"],
+      "gates": [],
+      "acceptance": [
+        "A nested or simulated node boots from pinned artifacts without worker-local unique configuration.",
+        "Artifact verification and unauthorized-image rejection are tested.",
+        "Rebuild and replacement procedures are reproducible from a clean fixture."
+      ],
+      "evidence_types": ["infrastructure-code", "boot-log", "negative-security-test"],
+      "source_refs": ["QUEUE.md#p2--hardware-arrival-readiness", "HEDGEHOG_ENGINEERING_DOCTRINE.md#workstream-b-reproducible-infrastructure"]
+    },
+    {
+      "id": "hh-p2-vfio-passthrough-automation",
+      "title": "Create VFIO whole-GPU and whole-NIC passthrough automation",
+      "description": "Generate topology-aware libvirt device assignments with IOMMU isolation, NUMA pinning, and rollback checks.",
+      "priority": "P2",
+      "workstream": "reproducible-infrastructure",
+      "milestone": "days-11-20",
+      "status": "planned",
+      "labels": ["hedgehog", "vfio", "libvirt", "numa"],
+      "dependencies": ["hh-p1-topology-fixture-parser", "hh-p2-ipxe-hypervisor-prototype"],
+      "gates": ["hardware-required"],
+      "acceptance": [
+        "Synthetic topology tests reject unsafe IOMMU groups and cross-NUMA placement.",
+        "Generated definitions are idempotent and reversible.",
+        "Physical acceptance proves whole-device assignment and host recovery after VM teardown."
+      ],
+      "evidence_types": ["automation", "synthetic-tests", "hardware-validation"],
+      "source_refs": ["QUEUE.md#p2--hardware-arrival-readiness", "HEDGEHOG_ENGINEERING_DOCTRINE.md#workstream-b-reproducible-infrastructure"]
+    },
+    {
+      "id": "hh-p2-p100-acceptance-plans",
+      "title": "Create one-, two-, and four-P100 acceptance test plans",
+      "description": "Define correctness, performance, locality, utilization, thermal, power, and recovery evidence needed at each scale.",
+      "priority": "P2",
+      "workstream": "single-host-inference",
+      "milestone": "days-1-10",
+      "status": "planned",
+      "labels": ["hedgehog", "acceptance", "p100", "benchmark"],
+      "dependencies": ["hh-p1-numerical-reference-tests", "hh-p1-topology-fixture-parser", "hh-p2-cuda12-pascal-environment"],
+      "gates": [],
+      "acceptance": [
+        "Each scale has exact commands, models or synthetic fixtures, metrics, repetitions, and pass criteria.",
+        "NUMA, PCIe, VRAM, RAM, network, power, and temperature observations are required where applicable.",
+        "Plans do not pre-assert hardware results."
+      ],
+      "evidence_types": ["acceptance-plan", "metric-schema", "fixture-plan"],
+      "source_refs": ["QUEUE.md#p2--hardware-arrival-readiness", "HEDGEHOG_ENGINEERING_DOCTRINE.md#workstream-d-single-host-inference"]
+    },
+    {
+      "id": "hh-p0-family-media-feasibility",
+      "title": "Produce the Family Media Digest technical-feasibility and legal-boundary matrix",
+      "description": "Classify each proposed data source and feature by authorized access path, coverage, latency, privacy risk, and required review.",
+      "priority": "P0",
+      "workstream": "flagship-private-workloads",
+      "milestone": "days-1-10",
+      "status": "planned",
+      "labels": ["hedgehog", "flagship-workload", "privacy", "feasibility"],
+      "dependencies": ["hh-p0-threat-model-v0-1"],
+      "gates": ["owner-approval"],
+      "acceptance": [
+        "Every source is classified as supported, partial, metadata-only, export-only, or unavailable.",
+        "Consent, account authority, retention, and human-review boundaries are explicit.",
+        "No private production data is used as evidence."
+      ],
+      "evidence_types": ["feasibility-matrix", "legal-boundary-review", "data-flow-map"],
+      "source_refs": ["QUEUE.md#p0--sk-companies-flagship-private-workloads", "FAMILY_MEDIA_DIGEST_PRODUCT.md"]
+    },
+    {
+      "id": "hh-p0-android-collection-prototype",
+      "title": "Prototype authorized Android collection on synthetic accounts",
+      "description": "Evaluate UsageStatsManager and NotificationListenerService collection boundaries with consent, minimization, provenance, and failure handling.",
+      "priority": "P0",
+      "workstream": "flagship-private-workloads",
+      "milestone": "days-11-20",
+      "status": "planned",
+      "labels": ["hedgehog", "android", "prototype", "privacy"],
+      "dependencies": ["hh-p0-family-media-feasibility"],
+      "gates": ["test-account-required", "owner-approval"],
+      "acceptance": [
+        "Only synthetic or authorized test-account data is collected.",
+        "Permission denial, revocation, duplicate events, and offline buffering are tested.",
+        "Captured fields and unavailable content are documented exactly."
+      ],
+      "evidence_types": ["prototype", "synthetic-fixtures", "permission-tests"],
+      "source_refs": ["QUEUE.md#p0--sk-companies-flagship-private-workloads", "FAMILY_MEDIA_DIGEST_INTEGRATION_NOTES.md"]
+    },
+    {
+      "id": "hh-p0-tiktok-export-verification",
+      "title": "Verify TikTok export contents and latency using a test account",
+      "description": "Measure the authorized export workflow, field coverage, timestamp fidelity, and delivery latency without inferring unavailable conversations.",
+      "priority": "P0",
+      "workstream": "flagship-private-workloads",
+      "milestone": "days-11-20",
+      "status": "planned",
+      "labels": ["hedgehog", "tiktok", "data-export", "privacy"],
+      "dependencies": ["hh-p0-family-media-feasibility"],
+      "gates": ["test-account-required", "owner-approval"],
+      "acceptance": [
+        "The test-account request and receipt timestamps are retained.",
+        "Fields, omissions, and coverage limits are enumerated from the received export.",
+        "No private live-account payload is committed."
+      ],
+      "evidence_types": ["redacted-export-inventory", "latency-record", "coverage-matrix"],
+      "source_refs": ["QUEUE.md#p0--sk-companies-flagship-private-workloads", "FAMILY_MEDIA_DIGEST_INTEGRATION_NOTES.md"]
+    },
+    {
+      "id": "hh-p0-meta-family-center-verification",
+      "title": "Verify Meta Family Center supervising-parent data coverage",
+      "description": "Distinguish FULL, PARTIAL, and METADATA_ONLY conversation coverage using authorized test accounts and documented surfaces.",
+      "priority": "P0",
+      "workstream": "flagship-private-workloads",
+      "milestone": "days-11-20",
+      "status": "planned",
+      "labels": ["hedgehog", "meta", "family-center", "privacy"],
+      "dependencies": ["hh-p0-family-media-feasibility"],
+      "gates": ["test-account-required", "owner-approval"],
+      "acceptance": [
+        "Coverage classifications are backed by authorized observed fields and timestamps.",
+        "Unavailable message content is never inferred from metadata.",
+        "Permission and supervision-state changes are tested."
+      ],
+      "evidence_types": ["coverage-matrix", "synthetic-observations", "permission-tests"],
+      "source_refs": ["QUEUE.md#p0--sk-companies-flagship-private-workloads", "FAMILY_MEDIA_DIGEST_INTEGRATION_NOTES.md"]
+    },
+    {
+      "id": "hh-p0-context-ingestion-prototype",
+      "title": "Prototype Life360 and Family Link context ingestion",
+      "description": "Use authorized notifications and events, preserve source confidence, and document unavailable official API surfaces.",
+      "priority": "P0",
+      "workstream": "flagship-private-workloads",
+      "milestone": "days-11-20",
+      "status": "planned",
+      "labels": ["hedgehog", "context-ingestion", "privacy"],
+      "dependencies": ["hh-p0-family-media-feasibility", "hh-p0-android-collection-prototype"],
+      "gates": ["test-account-required", "owner-approval"],
+      "acceptance": [
+        "Synthetic event fixtures cover duplicates, gaps, reordering, and permission loss.",
+        "Each field records its authorized source and confidence.",
+        "Unavailable APIs and prohibited workarounds are documented."
+      ],
+      "evidence_types": ["prototype", "synthetic-fixtures", "source-provenance-tests"],
+      "source_refs": ["QUEUE.md#p0--sk-companies-flagship-private-workloads", "FAMILY_MEDIA_DIGEST_INTEGRATION_NOTES.md"]
+    },
+    {
+      "id": "hh-p0-synthetic-digest-pipeline",
+      "title": "Build a synthetic daily digest pipeline with concern alerts and false-positive scoring",
+      "description": "Exercise ingestion, normalization, concern rules or models, evidence attribution, escalation, and human review on synthetic data.",
+      "priority": "P0",
+      "workstream": "flagship-private-workloads",
+      "milestone": "days-21-30",
+      "status": "planned",
+      "labels": ["hedgehog", "flagship-workload", "pipeline", "evaluation"],
+      "dependencies": ["hh-p0-android-collection-prototype", "hh-p0-tiktok-export-verification", "hh-p0-meta-family-center-verification", "hh-p0-context-ingestion-prototype"],
+      "gates": ["owner-approval"],
+      "acceptance": [
+        "Synthetic scenarios include true positives, false positives, missing data, and conflicting sources.",
+        "Every alert cites the source events and confidence used.",
+        "Precision, recall, false-positive rate, and abstention are reported without production claims."
+      ],
+      "evidence_types": ["synthetic-pipeline", "evaluation-fixtures", "quality-metrics"],
+      "source_refs": ["QUEUE.md#p0--sk-companies-flagship-private-workloads", "FAMILY_MEDIA_DIGEST_PRODUCT.md"]
+    },
+    {
+      "id": "hh-d-single-host-baselines",
+      "title": "Measure one-, two-, and four-P100 single-host inference baselines",
+      "description": "Run pinned dense and MoE workloads across quantizations, context lengths, CPU affinity, RAM offload, and NUMA placement.",
+      "priority": "P1",
+      "workstream": "single-host-inference",
+      "milestone": "days-1-10",
+      "status": "planned",
+      "labels": ["hedgehog", "benchmark", "p100", "single-host"],
+      "dependencies": ["hh-p2-hardware-inventory-collector", "hh-p2-cuda12-pascal-environment", "hh-p2-p100-acceptance-plans", "hh-p2-vfio-passthrough-automation"],
+      "gates": ["hardware-required"],
+      "acceptance": [
+        "Correctness passes against the defined reference before performance claims.",
+        "Raw latency, throughput, utilization, memory, locality, power, and temperature data are retained.",
+        "Each result identifies exact hardware topology, model, quantization, and software versions."
+      ],
+      "evidence_types": ["correctness-results", "raw-benchmarks", "hardware-manifest"],
+      "source_refs": ["HEDGEHOG_ENGINEERING_DOCTRINE.md#workstream-d-single-host-inference", "HEDGEHOG_ENGINEERING_DOCTRINE.md#days-1-10"]
+    },
+    {
+      "id": "hh-e-100gb-fabric-baseline",
+      "title": "Measure the 100GbE or EDR InfiniBand fabric baseline",
+      "description": "Characterize bandwidth, latency, CPU cost, NUMA locality, reliability, and representative activation payloads across candidate transports.",
+      "priority": "P1",
+      "workstream": "network-transport",
+      "milestone": "days-11-20",
+      "status": "planned",
+      "labels": ["hedgehog", "benchmark", "100gbe", "infiniband"],
+      "dependencies": ["hh-p1-activation-transport-benchmark", "hh-p2-hardware-inventory-collector", "hh-p2-vfio-passthrough-automation"],
+      "gates": ["hardware-required"],
+      "acceptance": [
+        "Synthetic and representative activation payload results are both retained.",
+        "TCP and the selected RDMA path are measured with NUMA placement documented.",
+        "Raw samples, counters, errors, versions, and topology are reproducible."
+      ],
+      "evidence_types": ["raw-benchmarks", "network-counters", "hardware-manifest"],
+      "source_refs": ["HEDGEHOG_ENGINEERING_DOCTRINE.md#workstream-e-network-transport", "HEDGEHOG_ENGINEERING_DOCTRINE.md#days-11-20"]
+    },
+    {
+      "id": "hh-f-two-host-routing-prototype",
+      "title": "Build the two-host activation-routing and static-shard prototype",
+      "description": "Move activations between stable expert owners while keeping model shards resident, with reference-correct outputs and retained network profiles.",
+      "priority": "P1",
+      "workstream": "distributed-moe",
+      "milestone": "days-21-30",
+      "status": "planned",
+      "labels": ["hedgehog", "distributed-inference", "moe", "prototype"],
+      "dependencies": ["hh-p1-numerical-reference-tests", "hh-e-100gb-fabric-baseline", "hh-d-single-host-baselines"],
+      "gates": ["hardware-required"],
+      "acceptance": [
+        "Outputs match the numerical reference within justified tolerances.",
+        "Steady state moves activations rather than repeatedly transferring expert weights.",
+        "Network, PCIe, CPU, GPU, and RAM residency evidence is retained."
+      ],
+      "evidence_types": ["prototype", "reference-comparison", "system-profile"],
+      "source_refs": ["HEDGEHOG_ENGINEERING_DOCTRINE.md#workstream-f-distributed-moe-execution", "HEDGEHOG_ENGINEERING_DOCTRINE.md#days-21-30"]
+    },
+    {
+      "id": "hh-f-multi-host-expert-routing",
+      "title": "Implement multi-host expert routing, batching, and backpressure",
+      "description": "Extend the two-host prototype to deterministic multi-host routing with bounded queues, load metrics, and failure-safe request handling.",
+      "priority": "P1",
+      "workstream": "distributed-moe",
+      "milestone": "days-31-40",
+      "status": "planned",
+      "labels": ["hedgehog", "distributed-inference", "moe", "backpressure"],
+      "dependencies": ["hh-f-two-host-routing-prototype", "hh-p1-failure-injection-harness"],
+      "gates": ["hardware-required"],
+      "acceptance": [
+        "Routing remains reference-correct under batching and controlled overload.",
+        "Backpressure bounds memory and reports rejected or delayed work explicitly.",
+        "Per-node expert load and end-to-end latency are retained."
+      ],
+      "evidence_types": ["distributed-tests", "load-profile", "failure-results"],
+      "source_refs": ["HEDGEHOG_ENGINEERING_DOCTRINE.md#workstream-f-distributed-moe-execution", "HEDGEHOG_ENGINEERING_DOCTRINE.md#days-31-40"]
+    },
+    {
+      "id": "hh-f-expert-replication-recovery",
+      "title": "Implement expert replication and recovery after worker loss",
+      "description": "Place replicas across failure domains, detect unavailable owners, reroute deterministically, and preserve request correctness.",
+      "priority": "P1",
+      "workstream": "distributed-moe",
+      "milestone": "days-31-40",
+      "status": "planned",
+      "labels": ["hedgehog", "fault-tolerance", "moe", "replication"],
+      "dependencies": ["hh-f-multi-host-expert-routing"],
+      "gates": ["hardware-required", "authorized-target-only"],
+      "acceptance": [
+        "Replica placement avoids the modeled single failure domains.",
+        "Deliberate worker loss triggers bounded detection and reference-correct rerouting.",
+        "Recovery time, retries, duplicate work, and lost requests are measured."
+      ],
+      "evidence_types": ["failure-injection", "recovery-metrics", "correctness-results"],
+      "source_refs": ["HEDGEHOG_ENGINEERING_DOCTRINE.md#workstream-f-distributed-moe-execution", "HEDGEHOG_ENGINEERING_DOCTRINE.md#days-31-40"]
+    },
+    {
+      "id": "hh-g-resource-pool-scheduler",
+      "title": "Expose Hedgehog as a NUMA-aware, GPU-seat-aware resource pool",
+      "description": "Schedule single-P100, multi-P100, multi-host, batch, and interactive workloads without treating aggregate VRAM as coherent memory.",
+      "priority": "P1",
+      "workstream": "scheduling-virtualization",
+      "milestone": "days-31-40",
+      "status": "planned",
+      "labels": ["hedgehog", "scheduler", "virtualization", "numa"],
+      "dependencies": ["hh-p2-vfio-passthrough-automation", "hh-f-expert-replication-recovery"],
+      "gates": ["hardware-required"],
+      "acceptance": [
+        "Placement honors GPU seat, IOMMU, NUMA, RAM, NIC, and model-shard constraints.",
+        "Worker-local state is replaceable and unhealthy resources are fenced.",
+        "Priority, queueing, and safe preemption behavior have deterministic tests."
+      ],
+      "evidence_types": ["scheduler", "placement-tests", "failure-recovery"],
+      "source_refs": ["HEDGEHOG_ENGINEERING_DOCTRINE.md#workstream-g-scheduling-and-virtualization"]
+    },
+    {
+      "id": "hh-c-security-fault-exercises",
+      "title": "Run security and fault-containment exercises",
+      "description": "Validate segmentation, least privilege, provenance, egress, audit, backup, fencing, and compromise containment on owned or simulated systems.",
+      "priority": "P1",
+      "workstream": "security",
+      "milestone": "days-41-50",
+      "status": "planned",
+      "labels": ["hedgehog", "security", "fault-injection"],
+      "dependencies": ["hh-p0-threat-model-v0-1", "hh-g-resource-pool-scheduler"],
+      "gates": ["authorized-target-only"],
+      "acceptance": [
+        "Each exercise maps to a threat-model control and expected containment boundary.",
+        "Deliberate node, VM, NIC-path, service, and credential-scope failures are retained as evidence.",
+        "Recovery and residual-risk results are independently reviewed."
+      ],
+      "evidence_types": ["security-test-log", "fault-results", "control-validation"],
+      "source_refs": ["HEDGEHOG_ENGINEERING_DOCTRINE.md#workstream-c-security", "HEDGEHOG_ENGINEERING_DOCTRINE.md#days-41-50"]
+    },
+    {
+      "id": "hh-h-observability-benchmark-suite",
+      "title": "Build the integrated observability and benchmark suite",
+      "description": "Collect correctness, latency, throughput, utilization, locality, traffic, power, temperature, errors, recovery, and cost metrics with reproducible metadata.",
+      "priority": "P1",
+      "workstream": "observability-benchmarking",
+      "milestone": "days-41-50",
+      "status": "planned",
+      "labels": ["hedgehog", "observability", "benchmark"],
+      "dependencies": ["hh-d-single-host-baselines", "hh-e-100gb-fabric-baseline", "hh-f-multi-host-expert-routing"],
+      "gates": ["hardware-required"],
+      "acceptance": [
+        "Raw samples and environment manifests accompany every summary.",
+        "Tokens per second, time to first token, prompt rate, component utilization, traffic, power, temperature, errors, and recovery are captured where applicable.",
+        "Cost per million useful tokens includes documented assumptions and sensitivity."
+      ],
+      "evidence_types": ["telemetry-config", "raw-benchmarks", "analysis-report"],
+      "source_refs": ["HEDGEHOG_ENGINEERING_DOCTRINE.md#workstream-h-observability-and-benchmarking"]
+    },
+    {
+      "id": "hh-f-four-host-scale",
+      "title": "Validate four-host scale, expert replication, and power-aware scheduling",
+      "description": "Measure multi-host scaling and recovery under representative workloads while exercising capacity-aware power control.",
+      "priority": "P1",
+      "workstream": "distributed-moe",
+      "milestone": "days-41-50",
+      "status": "planned",
+      "labels": ["hedgehog", "scale-test", "moe", "power"],
+      "dependencies": ["hh-g-resource-pool-scheduler", "hh-c-security-fault-exercises", "hh-h-observability-benchmark-suite"],
+      "gates": ["hardware-required", "authorized-target-only"],
+      "acceptance": [
+        "Correctness remains within reference tolerances at four-host scale.",
+        "Scaling, imbalance, saturation, power, and thermal behavior are measured from raw data.",
+        "Deliberate loss of workers, VMs, and NIC paths produces bounded, measured recovery."
+      ],
+      "evidence_types": ["scale-benchmarks", "failure-injection", "power-telemetry"],
+      "source_refs": ["HEDGEHOG_ENGINEERING_DOCTRINE.md#days-41-50"]
+    },
+    {
+      "id": "hh-release-candidate",
+      "title": "Produce the integrated Hedgehog release candidate and 60-day evidence package",
+      "description": "Assemble the reproducible build, benchmark suite, security review, architecture, failure-mode, cost, power, and roadmap artifacts for owner acceptance.",
+      "priority": "P0",
+      "workstream": "program-integration",
+      "milestone": "days-51-60",
+      "status": "planned",
+      "labels": ["hedgehog", "release-candidate", "acceptance"],
+      "dependencies": ["hh-p0-synthetic-digest-pipeline", "hh-f-four-host-scale", "hh-p0-evidence-ci"],
+      "gates": ["hardware-required", "owner-approval"],
+      "acceptance": [
+        "A competent operator can reproduce the build and documented workloads without undocumented rituals.",
+        "Security, correctness, performance, recovery, cost, and power claims link to validated raw evidence.",
+        "Unavailable model weights or unmet hardware targets remain explicit roadmap gaps.",
+        "Owner acceptance records scope, rollback or recovery evidence, and residual risks."
+      ],
+      "evidence_types": ["release-manifest", "reproducibility-run", "security-review", "benchmark-package", "acceptance-record"],
+      "source_refs": ["HEDGEHOG_ENGINEERING_DOCTRINE.md#days-51-60", "HEDGEHOG_ENGINEERING_DOCTRINE.md#final-acceptance-criteria"]
+    }
+  ]
+}

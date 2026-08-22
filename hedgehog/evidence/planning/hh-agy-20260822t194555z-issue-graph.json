@@ -1,0 +1,91 @@
+{
+  "schema_version": "1.0",
+  "evidence_id": "hh-agy-20260822t194555z-issue-graph",
+  "task_id": "HH-AGY-20260822T194555Z",
+  "title": "Dependency-ordered Hedgehog issue graph local draft",
+  "status": "partial",
+  "generated_at": "2026-08-22T20:45:49.7124810Z",
+  "producer": "codex",
+  "environment": {
+    "os": "Microsoft Windows NT 10.0.26200.0",
+    "powershell": "5.1.26100.9168",
+    "python_command_exposed": true,
+    "python": "3.12.10",
+    "python_executable": "C:\\ProgramData\\HedgehogPython312\\python.exe",
+    "py_launcher": "C:\\WINDOWS\\py.exe",
+    "working_directory": "C:\\SK-O\\Hedgehog\\hedgehog"
+  },
+  "commands": [
+    "$graphPath = 'planning\\github-issue-graph-v1.json'; $graph = Get-Content -LiteralPath $graphPath -Raw | ConvertFrom-Json; if ($graph.schema_version -ne '1.0') { throw 'unexpected schema_version' }; $seen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal); $gateNames = @($graph.gate_definitions.PSObject.Properties.Name); foreach ($node in $graph.nodes) { foreach ($field in @('id','title','description','priority','workstream','milestone','status','labels','dependencies','gates','acceptance','evidence_types','source_refs')) { if ($null -eq $node.$field) { throw \"node $($node.id) missing $field\" } }; if (-not $seen.Add([string]$node.id)) { throw \"duplicate node id $($node.id)\" }; foreach ($dependency in $node.dependencies) { if (-not $seen.Contains([string]$dependency)) { throw \"node $($node.id) has unknown or out-of-order dependency $dependency\" } }; foreach ($gate in $node.gates) { if ($gateNames -notcontains [string]$gate) { throw \"node $($node.id) has undefined gate $gate\" } }; if (@($node.acceptance).Count -eq 0) { throw \"node $($node.id) has no acceptance criteria\" } }; $requiredWorkstreams = @('hardware-characterization','reproducible-infrastructure','security','single-host-inference','network-transport','distributed-moe','scheduling-virtualization','observability-benchmarking'); $actualWorkstreams = @($graph.nodes.workstream | Sort-Object -Unique); foreach ($workstream in $requiredWorkstreams) { if ($actualWorkstreams -notcontains $workstream) { throw \"missing doctrine workstream $workstream\" } }; $requiredMilestones = @('days-1-10','days-11-20','days-21-30','days-31-40','days-41-50','days-51-60'); $actualMilestones = @($graph.nodes.milestone | Sort-Object -Unique); foreach ($milestone in $requiredMilestones) { if ($actualMilestones -notcontains $milestone) { throw \"missing milestone $milestone\" } }; \"Hedgehog issue graph structural check PASS: $($graph.nodes.Count) nodes; dependencies ordered; 8 doctrine workstreams and 6 milestones covered.\"",
+    "$manifest = Get-Content -LiteralPath 'evidence\\planning\\hh-agy-20260822t194555z-issue-graph.json' -Raw | ConvertFrom-Json; $repo = (Resolve-Path -LiteralPath '..').Path; $sha = [System.Security.Cryptography.SHA256]::Create(); try { foreach ($artifact in $manifest.artifacts) { $target = Join-Path $repo $artifact.path; $text = [System.IO.File]::ReadAllText($target); $normalized = $text.Replace(\"`r`n\", \"`n\").Replace(\"`r\", \"`n\"); $bytes = [System.Text.UTF8Encoding]::new($false).GetBytes($normalized); $actual = ($sha.ComputeHash($bytes) | ForEach-Object { $_.ToString('x2') }) -join ''; if ($actual -ne $artifact.sha256) { throw \"hash mismatch: $($artifact.path)\" } } } finally { $sha.Dispose() }",
+    "python -m unittest tests.test_validate_issue_graph.IssueGraphValidatorTests.test_accepts_valid_graph_in_dependency_order -v",
+    "python scripts/validate_issue_graph.py planning/github-issue-graph-v1.json",
+    "py -3.12 -m unittest tests.test_validate_issue_graph.IssueGraphValidatorTests.test_accepts_valid_graph_in_dependency_order -v",
+    "python scripts/verify_evidence.py",
+    "python -m unittest discover -s tests -p \"test_*.py\"",
+    "gh issue list --state open --limit 20",
+    "gh run list --branch \"hedgehog/agy-continuous\" --limit 10"
+  ],
+  "checks": [
+    {
+      "name": "graph JSON and required node fields",
+      "outcome": "pass",
+      "details": "PowerShell parsed the real artifact and found all required fields on 36 unique nodes."
+    },
+    {
+      "name": "dependency order and gate references",
+      "outcome": "pass",
+      "details": "Every dependency referenced an earlier node and every gate referenced a declared gate definition."
+    },
+    {
+      "name": "doctrine and milestone coverage",
+      "outcome": "pass",
+      "details": "The graph covers all eight doctrine workstreams and all six 60-day milestone ranges."
+    },
+    {
+      "name": "LF-normalized artifact hashes",
+      "outcome": "pass",
+      "details": "Independent PowerShell recomputation matched all three LF-normalized artifact hashes recorded in this manifest."
+    },
+    {
+      "name": "Python validator red-green cycle",
+      "outcome": "pass",
+      "details": "Continuation task HH-AGY-20260822T203110Z exposed Python 3.12.10, captured genuine RED for the missing validator, completed eight CLI-focused RED/GREEN behaviors, passed the real 36-node graph, and passed the 12-test full suite precheck."
+    },
+    {
+      "name": "GitHub issue import",
+      "outcome": "skipped",
+      "details": "The scheduled rider prohibits external communications and does not authorize creating GitHub issues; the graph records external_mutation_performed=false."
+    },
+    {
+      "name": "current GitHub issue and CI inspection",
+      "outcome": "skipped",
+      "details": "GitHub CLI was unauthenticated and public HTML/API retrieval failed after three bounded read-only approaches; remote freshness remains unverified."
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "hedgehog/planning/github-issue-graph-v1.json",
+      "sha256": "1863bcee70eb73e24d26a2206f7018c9c6b8ffda05ea6f6bdcde0b42cd40cf72",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/tests/test_validate_issue_graph.py",
+      "sha256": "730a144827cbe92dbaa1f799a5bc23f91d26f74df6f39e2ef96f7e7cd91f22e9",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/scripts/validate_issue_graph.py",
+      "sha256": "00795e2bfc76cbe9a15be942799d3bdc363b99b0eab594186ebe4aba9ed766f5",
+      "hash_mode": "lf-normalized"
+    }
+  ],
+  "notes": [
+    "The P0 queue item remains unchecked because the owner-gated GitHub import is incomplete; local graph and validator acceptance now pass.",
+    "No physical-hardware performance claim is made; hardware-dependent nodes carry explicit hardware-required gates.",
+    "Prompt route HH-AGY-20260822T194555Z-route-1 used SERIAL execution with prompt-router, planning-with-files, git-guardrails, test-driven-development, and verification-before-completion.",
+    "The repository evidence manifest is the available local receipt sink; no formal peach.prompt-routing-receipt.v1 surface binding is present, so formal routing acceptance remains unproven.",
+    "Continuation task HH-AGY-20260822T203110Z implemented and verified the deferred validator without performing the owner-gated GitHub import.",
+    "Rollback for the continuation is removal of scripts/validate_issue_graph.py and restoration of the prior test/manifest versions; pre-state evidence is the initial RED showing the validator path was absent."
+  ]
+}
