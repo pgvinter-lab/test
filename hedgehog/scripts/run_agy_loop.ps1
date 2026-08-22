@@ -31,6 +31,37 @@ function Write-RunLog([string]$Message) {
     Write-Output $line
 }
 
+function Invoke-NativeCapture {
+    param(
+        [Parameter(Mandatory=$true)][string]$Label,
+        [Parameter(Mandatory=$true)][string]$File,
+        [Parameter(Mandatory=$true)][string[]]$Arguments
+    )
+    $old = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        $lines = @(& $File @Arguments 2>&1)
+        $code = $LASTEXITCODE
+    } finally {
+        $ErrorActionPreference = $old
+    }
+    if ($code -ne 0) {
+        $tail = ($lines | Select-Object -Last 8) -join " | "
+        throw "$Label failed exit=$code output=$tail"
+    }
+    return $lines
+}
+
+function Invoke-NativeLogged {
+    param(
+        [Parameter(Mandatory=$true)][string]$Label,
+        [Parameter(Mandatory=$true)][string]$File,
+        [Parameter(Mandatory=$true)][string[]]$Arguments
+    )
+    $lines = @(Invoke-NativeCapture -Label $Label -File $File -Arguments $Arguments)
+    foreach ($line in $lines) { Write-RunLog "$Label`: $line" }
+}
+
 $LockStream = $null
 try {
     $LockStream = [System.IO.File]::Open(
@@ -56,22 +87,22 @@ try {
     if (-not $Codex) { throw "codex.cmd not found" }
 
     Write-RunLog "BEGIN task=$TaskId branch=$Branch codex=$Codex"
-    & git -C $Repo fetch origin $Branch 2>&1 |
-        ForEach-Object { Write-RunLog "git fetch: $_" }
-    if ($LASTEXITCODE -ne 0) { throw "git fetch failed: $LASTEXITCODE" }
+    Invoke-NativeLogged "git fetch" "git" @("-C", $Repo, "fetch", "origin", $Branch)
 
-    $dirtyBefore = @(& git -C $Repo status --porcelain --untracked-files=all)
-    if ($LASTEXITCODE -ne 0) { throw "git status failed" }
-
+    $dirtyBefore = @(Invoke-NativeCapture "git status" "git" @(
+        "-C", $Repo, "status", "--porcelain", "--untracked-files=all"
+    ))
     if ($dirtyBefore.Count -eq 0) {
-        & git -C $Repo merge --ff-only "origin/$Branch" 2>&1 |
-            ForEach-Object { Write-RunLog "git ff: $_" }
-        if ($LASTEXITCODE -ne 0) { throw "fast-forward failed: $LASTEXITCODE" }
+        Invoke-NativeLogged "git ff" "git" @(
+            "-C", $Repo, "merge", "--ff-only", "origin/$Branch"
+        )
     } else {
         Write-RunLog "RECOVERY mode: worktree already has $($dirtyBefore.Count) changed paths"
     }
 
-    $BaseHead = (& git -C $Repo rev-parse HEAD).Trim()
+    $BaseHead = (Invoke-NativeCapture "git rev-parse" "git" @(
+        "-C", $Repo, "rev-parse", "HEAD"
+    ) | Select-Object -Last 1).Trim()
     $SourcePrompt = Get-Content -LiteralPath $PromptSource -Raw
     $Invocation = @"
 Task ID: $TaskId
@@ -115,11 +146,12 @@ $SourcePrompt
     }
     if ($Process.ExitCode -ne 0) { throw "Codex failed with exit $($Process.ExitCode)" }
 
-    $Changed = @(& git -C $Repo status --porcelain --untracked-files=all)
+    $Changed = @(Invoke-NativeCapture "git status" "git" @(
+        "-C", $Repo, "status", "--porcelain", "--untracked-files=all"
+    ))
     if ($Changed.Count -eq 0) { throw "Codex produced no repository changes" }
 
-    $ChangedPaths = @(& git -C $Repo status --porcelain --untracked-files=all |
-        ForEach-Object { $_.Substring(3).Trim() })
+    $ChangedPaths = @($Changed | ForEach-Object { $_.Substring(3).Trim() })
     $OutsideHedgehog = @($ChangedPaths | Where-Object {
         $_ -notlike "hedgehog/*" -and $_ -notlike "hedgehog\*"
     })
@@ -141,29 +173,26 @@ $SourcePrompt
         throw "Run did not create or update a JSON evidence manifest"
     }
 
-    & python $Verifier 2>&1 | ForEach-Object { Write-RunLog "verify: $_" }
-    if ($LASTEXITCODE -ne 0) { throw "evidence verifier failed" }
-    & python -m unittest discover -s (Join-Path $HedgehogDir "tests") -p "test_*.py" 2>&1 |
-        ForEach-Object { Write-RunLog "tests: $_" }
-    if ($LASTEXITCODE -ne 0) { throw "Hedgehog unit tests failed" }
+    Invoke-NativeLogged "verify" "python" @($Verifier)
+    Invoke-NativeLogged "tests" "python" @(
+        "-m", "unittest", "discover", "-s", (Join-Path $HedgehogDir "tests"),
+        "-p", "test_*.py"
+    )
 
-    & git -C $Repo add -- hedgehog
+    Invoke-NativeLogged "git add" "git" @("-C", $Repo, "add", "--", "hedgehog")
     $Summary = "Hedgehog scheduled engineering cycle $TaskId"
     $Message = "$Summary`n`nAgent: codex`nTask: $TaskId"
-    & git -C $Repo commit -m $Message 2>&1 |
-        ForEach-Object { Write-RunLog "commit: $_" }
-    if ($LASTEXITCODE -ne 0) { throw "git commit failed" }
+    Invoke-NativeLogged "commit" "git" @("-C", $Repo, "commit", "-m", $Message)
+    Invoke-NativeLogged "rebase" "git" @("-C", $Repo, "pull", "--rebase", "origin", $Branch)
+    Invoke-NativeLogged "push" "git" @("-C", $Repo, "push", "origin", "HEAD:$Branch")
 
-    & git -C $Repo pull --rebase origin $Branch 2>&1 |
-        ForEach-Object { Write-RunLog "rebase: $_" }
-    if ($LASTEXITCODE -ne 0) { throw "git pull --rebase failed" }
-
-    & git -C $Repo push origin "HEAD:$Branch" 2>&1 |
-        ForEach-Object { Write-RunLog "push: $_" }
-    if ($LASTEXITCODE -ne 0) { throw "git push failed" }
-
-    $Head = (& git -C $Repo rev-parse HEAD).Trim()
-    $Published = @(& git -C $Repo diff-tree --no-commit-id --name-only -r $Head -- hedgehog)
+    $Head = (Invoke-NativeCapture "git rev-parse" "git" @(
+        "-C", $Repo, "rev-parse", "HEAD"
+    ) | Select-Object -Last 1).Trim()
+    $Published = @(Invoke-NativeCapture "git diff-tree" "git" @(
+        "-C", $Repo, "diff-tree", "--no-commit-id", "--name-only", "-r", $Head,
+        "--", "hedgehog"
+    ))
     $Ready = @()
     foreach ($Rel in $Published) {
         $Source = Join-Path $Repo $Rel
