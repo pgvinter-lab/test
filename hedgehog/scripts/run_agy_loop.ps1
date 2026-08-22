@@ -9,6 +9,7 @@ $Branch = "hedgehog/agy-continuous"
 $HedgehogDir = Join-Path $Repo "hedgehog"
 $PromptSource = Join-Path $HedgehogDir "AGY_TRIGGER_PROMPT.md"
 $Verifier = Join-Path $HedgehogDir "scripts\verify_evidence.py"
+$PythonBootstrap = Join-Path $HedgehogDir "scripts\bootstrap_runner_python.ps1"
 $Outbox = Join-Path $Repo "WOLVERINE_OUTBOX"
 $ReadyRoot = Join-Path $Outbox "READY_FOR_DRIVE"
 $TaskId = "HH-AGY-" + (Get-Date).ToUniversalTime().ToString("yyyyMMddTHHmmssZ")
@@ -27,7 +28,29 @@ $LockPath = Join-Path $Runtime "run.lock"
 
 function Write-RunLog([string]$Message) {
     $line = "$(Get-Date -Format o) $Message"
-    Add-Content -LiteralPath $Log -Value $line -Encoding UTF8
+    $bytes = (New-Object System.Text.UTF8Encoding($false)).GetBytes($line + [Environment]::NewLine)
+    $written = $false
+    for ($attempt = 1; $attempt -le 20 -and -not $written; $attempt++) {
+        try {
+            $stream = [System.IO.File]::Open(
+                $Log,
+                [System.IO.FileMode]::OpenOrCreate,
+                [System.IO.FileAccess]::Write,
+                [System.IO.FileShare]::ReadWrite
+            )
+            try {
+                [void]$stream.Seek(0, [System.IO.SeekOrigin]::End)
+                $stream.Write($bytes, 0, $bytes.Length)
+                $stream.Flush()
+                $written = $true
+            } finally {
+                $stream.Dispose()
+            }
+        } catch [System.IO.IOException] {
+            if ($attempt -eq 20) { throw }
+            Start-Sleep -Milliseconds 100
+        }
+    }
     Write-Output $line
 }
 
@@ -78,6 +101,14 @@ try {
 try {
     if (-not (Test-Path $PromptSource)) { throw "Missing prompt: $PromptSource" }
     if (-not (Test-Path $Verifier)) { throw "Missing verifier: $Verifier" }
+    if (-not (Test-Path $PythonBootstrap)) { throw "Missing Python bootstrap: $PythonBootstrap" }
+
+    $SandboxPython = (& $PythonBootstrap | Select-Object -Last 1).Trim()
+    $PythonExe = Join-Path $SandboxPython "python.exe"
+    if (-not (Test-Path -LiteralPath $PythonExe -PathType Leaf)) {
+        throw "Hedgehog Python runtime missing after bootstrap: $PythonExe"
+    }
+    $env:PATH = "$SandboxPython;$env:PATH"
 
     $Codex = (Get-Command codex.cmd -ErrorAction SilentlyContinue).Source
     if (-not $Codex) {
@@ -138,13 +169,10 @@ $SourcePrompt
         -RedirectStandardError $AgentErr
     Write-RunLog "Codex exit=$($Process.ExitCode)"
 
-    if (Test-Path $AgentOut) {
-        Get-Content $AgentOut | ForEach-Object { Write-RunLog "codex: $_" }
-    }
-    if (Test-Path $AgentErr) {
-        Get-Content $AgentErr | ForEach-Object { Write-RunLog "codex.err: $_" }
-    }
-    if ($Process.ExitCode -ne 0) { throw "Codex failed with exit $($Process.ExitCode)" }
+    $OutBytes = if (Test-Path $AgentOut) { (Get-Item -LiteralPath $AgentOut).Length } else { 0 }
+    $ErrBytes = if (Test-Path $AgentErr) { (Get-Item -LiteralPath $AgentErr).Length } else { 0 }
+    Write-RunLog "Codex trace files stdout=$AgentOut ($OutBytes bytes) stderr=$AgentErr ($ErrBytes bytes)"
+    if ($Process.ExitCode -ne 0) { throw "Codex failed with exit $($Process.ExitCode); inspect $AgentErr" }
 
     $Changed = @(Invoke-NativeCapture "git status" "git" @(
         "-C", $Repo, "status", "--porcelain", "--untracked-files=all"
@@ -173,8 +201,8 @@ $SourcePrompt
         throw "Run did not create or update a JSON evidence manifest"
     }
 
-    Invoke-NativeLogged "verify" "python" @($Verifier)
-    Invoke-NativeLogged "tests" "python" @(
+    Invoke-NativeLogged "verify" $PythonExe @($Verifier)
+    Invoke-NativeLogged "tests" $PythonExe @(
         "-m", "unittest", "discover", "-s", (Join-Path $HedgehogDir "tests"),
         "-p", "test_*.py"
     )
