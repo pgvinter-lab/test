@@ -127,7 +127,7 @@ $SourcePrompt
     )
 
     $CmdLine = 'type "' + $PromptFile + '" | "' + $Codex +
-        '" exec --ignore-user-config --sandbox workspace-write --ephemeral -C "' +
+        '" exec --sandbox workspace-write --ignore-rules --ephemeral -C "' +
         $HedgehogDir + '" -'
     Write-RunLog "Invoking Codex"
     $Process = Start-Process -FilePath "cmd.exe" `
