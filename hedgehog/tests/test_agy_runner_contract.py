@@ -53,6 +53,12 @@ class AgyRunnerContractTests(unittest.TestCase):
         self.assertIn("Antigravity is the scheduled heavy-work engine", RUNBOOK)
         self.assertIn("There is no automatic fallback to Codex", RUNBOOK)
 
+    def test_repository_writes_avoid_antigravity_artifact_tool(self):
+        self.assertIn("Do not use Antigravity `write_to_file`", PROMPT)
+        self.assertIn("brain artifact directory", AGENTS)
+        self.assertIn("cortex `write_to_file`", RUNBOOK)
+        self.assertIn("terminal/filesystem", RUNBOOK)
+
 
 if __name__ == "__main__":
     unittest.main()

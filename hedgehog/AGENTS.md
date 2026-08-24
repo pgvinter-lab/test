@@ -27,6 +27,9 @@ Scheduled runs must:
 - Do not publish secrets, credentials, customer data, private legal records,
   model weights, or private live-production payloads.
 - Do not invoke Codex or another coding agent to perform the scheduled cycle.
+- Write repository files with terminal/filesystem commands. Do not use Antigravity
+  `write_to_file` / cortex artifact tools for paths in the Git working tree; those
+  tools are restricted to Antigravity's brain artifact directory.
 
 ## Codex repair role
 

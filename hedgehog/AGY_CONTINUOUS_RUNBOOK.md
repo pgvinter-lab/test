@@ -23,6 +23,8 @@ The scheduled runner must resolve and execute `agy.exe` directly. There is no au
 
 The runner uses Antigravity headless print mode with JSON output so it can verify the terminal status, response, token usage, and `conversation_id`. The first successful engineering cycle records the Antigravity conversation ID under the local runtime directory; subsequent cycles resume that conversation with `--conversation` so context persists across scheduled executions.
 
+Repository mutations must use ordinary terminal/filesystem writes in the checked-out working tree. Antigravity cortex `write_to_file` and similar artifact-writing tools are not valid for repository paths because they are confined to Antigravity's brain artifact directory. A tool-path rejection is an orchestration failure to repair, not a reason to move repository output into the brain directory.
+
 The runner rejects:
 
 - a missing or unexpected Antigravity executable;
