@@ -5,10 +5,11 @@ workspace protocol.
 
 ## Scheduled runner delegation
 
-When Codex is invoked by `hedgehog/scripts/run_agy_loop.ps1`, that invocation is
-an explicit human-authorized handoff for the task ID supplied in the prompt.
-For that scheduled task, Codex holds the Hedgehog engineering baton only for
-the duration of the invocation and only inside `hedgehog/`.
+When `hedgehog/scripts/run_agy_loop.ps1` starts a scheduled engineering cycle,
+`agy.exe` / Google Antigravity is the execution engine for that cycle. The task
+ID in the prompt is an explicit human-authorized handoff to Antigravity, and
+Antigravity holds the Hedgehog engineering baton only for the duration of that
+invocation and only inside `hedgehog/`.
 
 Scheduled runs must:
 
@@ -25,6 +26,20 @@ Scheduled runs must:
 - Do not send external communications.
 - Do not publish secrets, credentials, customer data, private legal records,
   model weights, or private live-production payloads.
+- Do not invoke Codex or another coding agent to perform the scheduled cycle.
+
+## Codex repair role
+
+Codex is an out-of-band repair/debugging tool for the Antigravity system, not
+the scheduled heavy-work engine. If Antigravity exposes a bad instruction,
+harness bug, orchestration failure, or reproducibility defect, the operator may
+use Codex to diagnose and repair those instructions or mechanisms. After that
+repair, the work returns to Antigravity for the substantive engineering cycle.
+
+A failed Antigravity cycle must therefore fail with useful evidence rather than
+silently substituting Codex. The runner stops before a fourth consecutive
+failure and requires a successful Antigravity smoke test before the failure
+counter is cleared.
 
 The scheduled runner is intentionally isolated from the repository-root
 cross-surface orchestration so a Hedgehog hourly cycle cannot overwrite shared
