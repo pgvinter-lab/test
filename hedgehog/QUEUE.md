@@ -3,8 +3,8 @@
 ## P0 — Program bootstrap
 
 - [ ] Convert the 60-day doctrine into a dependency-ordered GitHub issue graph.
-- [ ] Produce ADR-0001: virtualized diskless compute nodes, one persistent storage/control node, whole-GPU passthrough, and 100GbE/EDR fabric.
-- [ ] Produce Threat Model v0.1 for the cluster and SK Companies tenant workloads.
+- [x] Produce ADR-0001: virtualized diskless compute nodes, one persistent storage/control node, whole-GPU passthrough, and 100GbE/EDR fabric. <!-- evidence: hedgehog/evidence/architecture/hh-p0-adr-0001.json -->
+- [x] Produce Threat Model v0.1 for the cluster and SK Companies tenant workloads. <!-- evidence: hedgehog/evidence/security/hh-p0-threat-model-v0-1.json -->
 - [x] Create evidence directory conventions and machine-readable result schema. <!-- evidence: hedgehog/evidence/bootstrap/evidence-contract-v1.json -->
 - [ ] Establish CI that rejects unsupported completion claims and missing evidence links.
 
@@ -27,7 +27,7 @@
 
 ## P1 — Simulation and test harnesses
 
-- [ ] Build static expert-ownership simulation.
+- [x] Build static expert-ownership simulation. <!-- evidence: hedgehog/evidence/moe/hh-p1-static-expert-simulation.json -->
 - [ ] Build activation-routing transport benchmark.
 - [ ] Build topology fixture parser for NUMA, PCIe, GPUs, NICs, and memory channels.
 - [ ] Define numerical reference tests for distributed MoE execution.

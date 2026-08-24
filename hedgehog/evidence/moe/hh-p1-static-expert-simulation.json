@@ -1,0 +1,136 @@
+{
+  "schema_version": "1.0",
+  "evidence_id": "hh-p1-static-expert-simulation",
+  "task_id": "HH-AGY-20260824T093112Z",
+  "title": "Static MoE Expert-Ownership and Activation-Routing Simulation Harness",
+  "status": "pass",
+  "generated_at": "2026-08-24T09:37:38.865493+00:00",
+  "producer": "antigravity",
+  "environment": {
+    "os": "Microsoft Windows NT 10.0.26200.0",
+    "python": "3.12.10",
+    "working_directory": "C:\\SK-O\\Hedgehog\\hedgehog",
+    "hardware_mode": "hardware-absent; deterministic distributed MoE mathematical simulation"
+  },
+  "commands": [
+    "python scripts/validate_moe_simulation.py --json",
+    "python scripts/run_moe_benchmarks.py --json",
+    "python -m unittest discover -s tests -v",
+    "python scripts/verify_evidence.py"
+  ],
+  "checks": [
+    {
+      "name": "Deterministic Expert Placement & Replication",
+      "outcome": "pass",
+      "details": "Validated reproducible assignment of 64 expert slots across 4 nodes and 16 GPU seats with N+1 standby RAM replicas and strict failure domain isolation."
+    },
+    {
+      "name": "Token Routing Determinism & Top-K Softmax",
+      "outcome": "pass",
+      "details": "Verified bit-exact determinism of Top-K gating and softmax normalization across identical inputs with load imbalance tracking."
+    },
+    {
+      "name": "MoE Capacity Factor & Overflow Policy",
+      "outcome": "pass",
+      "details": "Verified capacity bounds: DROP policy correctly drops 30/40 skewed tokens under heavy imbalance; BUFFER policy preserves and queues all 40 tokens."
+    },
+    {
+      "name": "Worker Loss Detection & Failover Recovery",
+      "outcome": "pass",
+      "details": "Simulated unannounced failure of node-1; router dynamically failed over all affected tokens to secondary replicas on surviving nodes with zero dropped tokens."
+    },
+    {
+      "name": "Golden Numerical Reference Parity",
+      "outcome": "pass",
+      "details": "Verified exact mathematical equivalence between single-process reference and distributed layer simulation across 4 layers with max absolute difference = 0.0 <= 1e-6."
+    },
+    {
+      "name": "Injected Mutation Rejection",
+      "outcome": "pass",
+      "details": "Verified that corruptions in gating weights or expert weights reliably trigger detectable deviations (diff > 0.1) and validation failure."
+    },
+    {
+      "name": "Full Hedgehog Unit Test Suite Execution",
+      "outcome": "pass",
+      "details": "All 62 tests across architecture, threat model, issue graph, runner contract, MoE placement, MoE router, MoE numerical reference, and CLI suites passed."
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "hedgehog/architecture/source_maps/expert_parallel_matrix.md",
+      "sha256": "26f6f9eae6d6d4eac0212255236b18546a7857c1eaa154c81e58c1d3671e5120",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/moe/__init__.py",
+      "sha256": "2802db2d7884586a7616af1eb96b7543695f981f3b470de0efb14131275913dd",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/moe/topology.py",
+      "sha256": "d1ced1dbf152967f239ad4fc5f22b35fa6a3d0dcab654cb631250cae57bef025",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/moe/model_config.py",
+      "sha256": "74c1bf95094850213345ef5aeca847fa7271b478884c27b3bb4b8e9487d3d10b",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/moe/expert_placement.py",
+      "sha256": "abd127c7eaa03c0cee1f2a09a19c32eaf633cdce4c6b0158c5fb250620af9940",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/moe/router.py",
+      "sha256": "3248b6183a85e2005df864ac2a0eea5ae9eb9f09419cf84d0fc742deab04668c",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/moe/reference.py",
+      "sha256": "da6c9dc0fd5361ae277d1bde62c5efe7f21469aaeb4fb836af9ba327e5996ac6",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/moe/distributed_layer.py",
+      "sha256": "0adad01a0b113e35cb798aa594198fc35632825565f56b037b37e3505f121f81",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/scripts/validate_moe_simulation.py",
+      "sha256": "4c160da5b816c68ca39ff0721df570fc03f15f47ce6b1825cd85ef7909cf3c6a",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/scripts/run_moe_benchmarks.py",
+      "sha256": "9afed2a03446923eeb7e4cd19b80d089d7cb7ceb3fdacd86d5df252d7e28a373",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/tests/test_moe_placement.py",
+      "sha256": "bf00144e0aec9eec94cd34dada67e37d0b06dc5bdc0209976c0a844bc7693c41",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/tests/test_moe_router.py",
+      "sha256": "0a482ef7c12a659b8f0aaa0199c4001b59ff462a2810b25bb4fbbc80eb5c5e6c",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/tests/test_moe_numerical_reference.py",
+      "sha256": "694e9b750773f05f19c1682aeebbf155a8bb5667bf8503cf77dd7c2e6eb653f6",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/tests/test_moe_simulation_cli.py",
+      "sha256": "5ab290825a466fa2fb75799ea88a90cb4124d3d002e97f74a43cacaa053b5b72",
+      "hash_mode": "lf-normalized"
+    }
+  ],
+  "notes": [
+    "Delivers the static MoE expert-ownership, replication, and activation routing simulation engine.",
+    "Proves mathematical equivalence against single-process golden reference.",
+    "Demonstrates activation transport feasibility (<15us on 100Gb fabric) avoiding naive model weight streaming.",
+    "Hardware-dependent transport and GPU execution remain labeled as simulation until physical hardware gates fire."
+  ]
+}

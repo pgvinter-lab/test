@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0",
+  "evidence_id": "hh-p0-threat-model-v0-1",
+  "task_id": "HH-AGY-20260824T091315Z",
+  "title": "Threat Model v0.1: Cluster Infrastructure & SK Companies Tenant Workloads",
+  "status": "pass",
+  "generated_at": "2026-08-24T09:19:50Z",
+  "producer": "Google Antigravity (Principal Systems & Security Engineer)",
+  "environment": {
+    "os": "windows",
+    "python": "3.12",
+    "workstream": "security",
+    "milestone": "days-1-10",
+    "issue_node": "hh-p0-threat-model-v0-1",
+    "trust_boundaries_count": 7,
+    "stride_threats_count": 18,
+    "security_controls_count": 18,
+    "residual_risks_count": 4
+  },
+  "commands": [
+    "python scripts/validate_threat_model.py",
+    "python -m unittest discover -s tests",
+    "python scripts/verify_evidence.py"
+  ],
+  "checks": [
+    {
+      "name": "threat_model_structural_validation",
+      "outcome": "pass",
+      "details": "Validated all 11 required sections, 7 trust boundaries, 18 STRIDE threats, and 4 owner-accepted residual risks."
+    },
+    {
+      "name": "control_test_matrix_alignment",
+      "outcome": "pass",
+      "details": "All 18 security controls mapped to specific unit tests, hardware gates, and verification criteria."
+    },
+    {
+      "name": "sk_companies_tenant_policy_enforcement",
+      "outcome": "pass",
+      "details": "Tier A/B/C workload classifications, Family Media Digest data minimization, and frame TTL verified."
+    },
+    {
+      "name": "security_unit_tests",
+      "outcome": "pass",
+      "details": "Full test suite (46 tests) passes with zero errors."
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "hedgehog/security/threat_model/THREAT_MODEL_V0_1.md",
+      "sha256": "59773688dff42a30818669af5e338543df7ccfca1bd646cdb568a74ff0b5d916",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/security/threat_model/control_test_matrix.md",
+      "sha256": "34020a294c64122f516640e8ef5ecccb13e940cd443f324f22a77c04c7a548ae",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/scripts/validate_threat_model.py",
+      "sha256": "c0a8289a2a9a615699bb6ac81c1d502931f0018320f904e61193f2da40c0bb6a",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/tests/test_threat_model.py",
+      "sha256": "69e5887743a9991792bddfae83d1400da843ca81ee8bb6401682bbef725bc19e",
+      "hash_mode": "lf-normalized"
+    }
+  ],
+  "notes": [
+    "Threat Model v0.1 accepted by Antigravity and Codex under SoSK engineering doctrine.",
+    "Residual risks RR-01 through RR-04 explicitly documented with owner acceptance decisions.",
+    "Physical hardware verification gates (gate-hardware-p100, gate-hardware-fabric, gate-hardware-boot) assigned to hardware arrival milestone."
+  ]
+}

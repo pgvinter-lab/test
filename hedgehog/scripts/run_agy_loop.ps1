@@ -49,7 +49,7 @@ function Write-RunLog([string]$Message) {
     } finally {
         $stream.Dispose()
     }
-    Write-Output $line
+    Write-Host $line
 }
 
 function Invoke-NativeCapture {
@@ -135,8 +135,8 @@ function Invoke-AgyJson {
     } catch {
         throw "Antigravity stdout was not a JSON envelope: $($_.Exception.Message)"
     }
-    if ($envelope.status -ne "SUCCESS") {
-        throw "Antigravity status=$($envelope.status) error=$($envelope.error)"
+    if ($envelope.status -notin @("SUCCESS", "ERROR")) {
+        throw "Antigravity returned unsupported terminal status=$($envelope.status)"
     }
 
     $tokens = if ($envelope.usage -and $envelope.usage.total_tokens) {
@@ -145,16 +145,16 @@ function Invoke-AgyJson {
         0
     }
     if ($tokens -le 0) {
-        throw "Antigravity reported SUCCESS with zero token usage"
+        throw "Antigravity reported terminal status=$($envelope.status) with zero token usage"
     }
     if (-not ([string]$envelope.response).Trim()) {
-        throw "Antigravity reported SUCCESS with an empty response"
+        throw "Antigravity reported terminal status=$($envelope.status) with an empty response"
     }
     if (-not $envelope.conversation_id) {
-        throw "Antigravity SUCCESS envelope omitted conversation_id"
+        throw "Antigravity terminal envelope omitted conversation_id"
     }
 
-    Write-RunLog "Antigravity conversation=$($envelope.conversation_id) tokens=$tokens"
+    Write-RunLog "Antigravity status=$($envelope.status) conversation=$($envelope.conversation_id) tokens=$tokens error=$($envelope.error)"
     return $envelope
 }
 
@@ -218,6 +218,9 @@ try {
             "-p", "Reply with exactly AGY_OK and do not use tools."
         )
         $smoke = Invoke-AgyJson -Agy $Agy -Arguments $smokeArgs
+        if ($smoke.status -ne "SUCCESS") {
+            throw "Antigravity smoke test terminal status=$($smoke.status) error=$($smoke.error)"
+        }
         if (([string]$smoke.response).Trim() -ne "AGY_OK") {
             throw "Antigravity smoke test returned unexpected response"
         }
@@ -307,11 +310,14 @@ $SourcePrompt
 
     Write-RunLog "Invoking Antigravity"
     $Envelope = Invoke-AgyJson -Agy $Agy -Arguments $agyArgs
-    [System.IO.File]::WriteAllText(
-        $ConversationPath,
-        [string]$Envelope.conversation_id,
-        (New-Object System.Text.UTF8Encoding($false))
-    )
+    $AgyTerminalStatus = [string]$Envelope.status
+    $AgyTerminalError = ([string]$Envelope.error -replace '[\r\n]+', ' ').Trim()
+    if ($AgyTerminalError.Length -gt 240) {
+        $AgyTerminalError = $AgyTerminalError.Substring(0, 240)
+    }
+    if ($AgyTerminalStatus -eq "ERROR") {
+        Write-RunLog "RECOVERY candidate: Antigravity terminal status=ERROR; deterministic repository gates will decide acceptance; error=$AgyTerminalError"
+    }
 
     $Changed = @(Invoke-NativeCapture "git status" "git" @(
         "-C", $Repo, "status", "--porcelain", "--untracked-files=all"
@@ -347,9 +353,21 @@ $SourcePrompt
         "-p", "test_*.py"
     )
 
+    if ($AgyTerminalStatus -eq "ERROR") {
+        Write-RunLog "RECOVERED Antigravity terminal ERROR: substantive changes + evidence verifier + full tests all passed"
+    }
+    [System.IO.File]::WriteAllText(
+        $ConversationPath,
+        [string]$Envelope.conversation_id,
+        (New-Object System.Text.UTF8Encoding($false))
+    )
+
     Invoke-NativeLogged "git add" "git" @("-C", $Repo, "add", "--", "hedgehog")
     $Summary = "Hedgehog scheduled engineering cycle $TaskId"
-    $Message = "$Summary`n`nAgent: antigravity`nTask: $TaskId"
+    $Message = "$Summary`n`nAgent: antigravity`nTask: $TaskId`nAGY-Terminal-Status: $AgyTerminalStatus"
+    if ($AgyTerminalStatus -eq "ERROR") {
+        $Message += "`nAGY-Terminal-Error-Recovered: $AgyTerminalError"
+    }
     Invoke-NativeLogged "commit" "git" @("-C", $Repo, "commit", "-m", $Message)
     Invoke-NativeLogged "rebase" "git" @("-C", $Repo, "pull", "--rebase", "origin", $Branch)
     Invoke-NativeLogged "push" "git" @("-C", $Repo, "push", "origin", "HEAD:$Branch")

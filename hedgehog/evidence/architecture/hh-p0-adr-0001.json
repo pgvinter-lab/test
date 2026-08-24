@@ -1,0 +1,96 @@
+{
+  "schema_version": "1.0",
+  "evidence_id": "hh-p0-adr-0001",
+  "task_id": "HH-AGY-20260824T090725Z",
+  "title": "ADR-0001 Virtualized Diskless 100Gb Fabric Architecture",
+  "status": "pass",
+  "generated_at": "2026-08-24T09:15:00.0000000Z",
+  "producer": "antigravity",
+  "environment": {
+    "os": "Microsoft Windows NT 10.0.26200.0",
+    "powershell": "5.1.26100.9168",
+    "python": "3.12.10",
+    "working_directory": "C:\\SK-O\\Hedgehog\\hedgehog",
+    "hardware_mode": "hardware-absent; structural & simulation validation"
+  },
+  "commands": [
+    "python scripts/validate_architecture.py",
+    "python -m unittest tests/test_architecture.py -v",
+    "python -m unittest discover -s tests -p \"test_*.py\"",
+    "python scripts/verify_evidence.py"
+  ],
+  "checks": [
+    {
+      "name": "ADR-0001 structural schema and required sections",
+      "outcome": "pass",
+      "details": "Validated status (Accepted), context, decision drivers, considered options, decision, failure domains, consequences, assumptions register, and transition plan."
+    },
+    {
+      "name": "explicit failure domain boundary isolation",
+      "outcome": "pass",
+      "details": "Verified explicit isolation and recovery models for Compute Node, GPU/VFIO, Inference Fabric, Storage/Control, and Tenant domains."
+    },
+    {
+      "name": "subsystem source maps and comparative evaluations",
+      "outcome": "pass",
+      "details": "Validated Virtualization Matrix (KVM/libvirt vs Nomad vs K8s vs Bare-Metal) and Transport Matrix (RoCEv2, InfiniBand, OpenUCX, RDMA-Core, P100 PCIe Gen3)."
+    },
+    {
+      "name": "hardware assumptions register classification",
+      "outcome": "pass",
+      "details": "All physical-hardware-dependent parameters are strictly labeled UNVERIFIED with explicit gates (gate-hardware-p100, gate-hardware-fabric, gate-hardware-topology, gate-hardware-boot); no fake physical results are asserted."
+    },
+    {
+      "name": "MoE activation transport feasibility simulation",
+      "outcome": "pass",
+      "details": "Simulated token activation transport over 100Gb fabric (<15 microseconds) demonstrating 1962.6x speedup advantage over naive model weight streaming."
+    },
+    {
+      "name": "full Hedgehog unit suite execution",
+      "outcome": "pass",
+      "details": "All 24 tests across test_architecture.py, test_agy_runner_contract.py, test_validate_issue_graph.py, and test_verify_evidence.py passed with exit code 0."
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "hedgehog/architecture/README.md",
+      "sha256": "1a5638d1276258b9ef02838fe0db0e4284ded96e46e016489095156dd5d482d6",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/architecture/ADR-0001-virtualized-diskless-100gb-fabric-cluster.md",
+      "sha256": "97925137b78044b8c09805b102ea9f20e584a832cda9a19fd57c1f2978c4b90f",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/architecture/source_maps/virtualization_stack_matrix.md",
+      "sha256": "b4fc6ccc1c80f857fc15a1b4d97c01d24dffdbbf1f8172295e1590c386efa4fe",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/architecture/source_maps/transport_stack_matrix.md",
+      "sha256": "8bcf932ce14eb2603d8fa4078c6a28be6f60811f3ecdc9ab7ff987497ee279d3",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/architecture/assumption_register.md",
+      "sha256": "f4f5f83f65a29e7a45b3040a6588860eddd11061642b957b4120c0a5206bd512",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/scripts/validate_architecture.py",
+      "sha256": "7023ffaf7338a736cefc9e246f5277f9520a1c271d33bd9358a6f2c1f2b7b0b9",
+      "hash_mode": "lf-normalized"
+    },
+    {
+      "path": "hedgehog/tests/test_architecture.py",
+      "sha256": "cf9fad6fd929d152773e730bbd7e1346e3e74605e3b042185a1579478505cdc5",
+      "hash_mode": "lf-normalized"
+    }
+  ],
+  "notes": [
+    "ADR-0001 formalizes the foundational architecture of Project Hedgehog.",
+    "Hardware-dependent assumptions remain unverified until physical cluster hardware is provisioned and measured against gates.",
+    "Executed autonomously by Google Antigravity in scheduled cycle HH-AGY-20260824T090725Z."
+  ]
+}

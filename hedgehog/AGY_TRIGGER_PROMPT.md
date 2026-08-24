@@ -6,6 +6,8 @@ The scheduled execution engine is Antigravity. Perform the substantive engineeri
 
 Repository-write rule: mutate files under the Hedgehog working tree through terminal commands that write ordinary filesystem paths (for example Python `pathlib`, PowerShell, or other shell tooling). **Do not use Antigravity `write_to_file` / cortex artifact-writing tools for repository paths.** Those tools are for Antigravity brain artifacts and reject paths outside the Antigravity artifact directory. Repository evidence is the Git working tree, not the brain/artifact directory.
 
+Windows command-length rule: keep each `run_command` command line small (target under 6,000 characters). Never embed or base64-encode an entire large document into one `python -c`, PowerShell here-string, or other single command. For large repository artifacts, assemble a compact generator or target file using multiple small append/write chunks (roughly 3,000 characters or less per command), then execute that short script.
+
 Read, in order:
 
 1. `HEDGEHOG_ENGINEERING_DOCTRINE.md`

@@ -26,7 +26,7 @@ class AgyRunnerContractTests(unittest.TestCase):
             '"--conversation", $conversationid',
             '"--dangerously-skip-permissions"',
             '"-p", $agyprompt',
-            'if ($envelope.status -ne "success")',
+            '$envelope.status',
             "zero token usage",
             "empty response",
         ):

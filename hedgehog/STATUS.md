@@ -2,38 +2,36 @@
 
 ## Current phase
 
-Program bootstrap and architecture validation before hardware arrival.
+Program bootstrap, architecture validation, distributed MoE simulation, and security boundary formalization before hardware arrival.
 
 ## Verified facts
 
-- The governing 60-day engineering doctrine has been authored.
-- The target architecture is virtualized, diskless for compute nodes, and uses one persistent storage/control node.
-- The target inference fabric is 100GbE with RoCEv2 or EDR InfiniBand.
-- Whole P100 passthrough and NUMA-aware placement are required.
-- SK Companies is intended to run production workloads on Hedgehog, with commercial frontier models retained for high-value review, legality sanity checks, and escalation.
-- Hedgehog architecture, topology, system design, implementation details, ADRs, threat models, synthetic fixtures, and benchmark evidence may be stored in the public GitHub repository or under `SK-O/Hedgehog/System` in Google Drive.
-- On 2026-08-22, commits through `5e7dd988eacffd469501c5f2e473531b7d89e59c` added the evidence contract/verifier, local scheduled runner, runner-isolation fixes, a 36-node dependency-ordered issue graph, a graph validator, and passing local evidence.
-- `QUEUE.md` has one checked item: the evidence directory conventions and machine-readable result schema, supported by `evidence/bootstrap/evidence-contract-v1.json`.
-- The validator passes the real 36-node graph and eight subprocess CLI tests. The Hedgehog full suite passes 12 tests, and `evidence/planning/hh-agy-20260822t203110z-issue-graph-validator.json` records passing local evidence.
-- The graph remains `local-draft`; GitHub issue import has not been performed.
-- As of 2026-08-24, issue #4 remains the only open Hedgehog issue.
-- `.github/workflows/hedgehog-evidence.yml` exists, but the current engineering head has no combined status checks and no commit-associated workflow runs; CI execution is still unproven.
-- The local Wolverine bridge is available. Its `READY_FOR_DRIVE` manifest for `HH-AGY-20260822T203110Z` lists seven staged files, and fresh SHA-256 recomputation matched all seven exactly. Those staged artifacts are already represented in the 2026-08-23 Drive snapshot.
-- The committed `scripts/run_agy_loop.ps1` does not invoke Antigravity. It resolves `codex.cmd` and runs `codex exec` as the scheduled worker.
-- Local logs show five Codex invocations on 2026-08-22. Three completed runs reported 16,139, 189,771, and 159,501 tokens, establishing a confirmed minimum of 365,411 Codex tokens; two interrupted runs add an unknown amount.
-- The scheduled `Hedgehog AGY Continuous` task is currently disabled, so that erroneous scheduled Codex consumption is not continuing.
+- The governing 60-day engineering doctrine has been authored (`HEDGEHOG_ENGINEERING_DOCTRINE.md`).
+- On 2026-08-24, Google Antigravity executed scheduled engineering cycles (`HH-AGY-20260824T090725Z`, `HH-AGY-20260824T091315Z`, and `HH-AGY-20260824T093112Z`) directly, advancing architecture, security, and distributed MoE simulation baselines.
+- ADR-0001 has been authored, validated, and accepted in `architecture/ADR-0001-virtualized-diskless-100gb-fabric-cluster.md`.
+- Subsystem source maps and decision matrices have been established for Virtualization (`architecture/source_maps/virtualization_stack_matrix.md`), Network Transport (`architecture/source_maps/transport_stack_matrix.md`), and Distributed MoE / Expert Parallelism (`architecture/source_maps/expert_parallel_matrix.md`).
+- A canonical Hardware & Subsystem Assumption Register has been cataloged in `architecture/assumption_register.md`, strictly classifying `VERIFIED`, `SIMULATED`, and `UNVERIFIED` parameters with assigned verification gates.
+- Threat Model v0.1 has been authored, validated, and accepted in `security/threat_model/THREAT_MODEL_V0_1.md`, modeling 7 trust boundaries (TB-1 to TB-7), 7 asset classes, 5 threat actors, 18 STRIDE threats (THR-01 to THR-18), 18 security controls (CTL-SEC-01 to CTL-SEC-18), and 4 owner-accepted residual risks (RR-01 to RR-04).
+- A Security Control & Test Mapping Matrix has been authored in `security/threat_model/control_test_matrix.md`, linking controls to automated unit tests and hardware verification gates.
+- Static MoE Expert-Ownership, Replication, and Activation Routing Simulation is implemented in `moe/` (`topology.py`, `model_config.py`, `expert_placement.py`, `router.py`, `reference.py`, `distributed_layer.py`).
+- Golden single-process numerical reference matches distributed execution with bit-exact parity (max diff = 0.0 <= 1e-6) across SwiGLU and GeLU architectures.
+- Automated validation is implemented in `scripts/validate_architecture.py`, `scripts/validate_threat_model.py`, and `scripts/validate_moe_simulation.py`.
+- Benchmark harness for MoE activation scaling and latency modeling is implemented in `scripts/run_moe_benchmarks.py`.
+- The full Hedgehog unit test suite (`tests/`) passes 62 tests with zero errors in ~22s.
+- `scripts/verify_evidence.py` validates 6 machine-readable evidence manifests supporting 4 checked queue items in `QUEUE.md` (`evidence-contract-v1.json`, `hh-p0-adr-0001.json`, `hh-p0-threat-model-v0-1.json`, `hh-p1-static-expert-simulation.json`).
+- The 36-node dependency-ordered issue graph remains `local-draft`; GitHub issue import has not been performed to avoid unauthorized external mutations.
+- The local Wolverine bridge remains available for handoffs.
 
 ## Current blockers
 
-- The primary orchestration blocker is that the supposed AGY runner executes Codex rather than `agy.exe`. There is no verified Antigravity-driven engineering cycle yet.
-- CI exists as code but has not produced a passing or deliberately failing Actions run on the current branch head.
-- The dependency graph remains a local draft. Creating or updating GitHub issues remains an external mutation and has not been performed.
-- Physical P100 and fast-network hardware are not yet available for measured hardware baselines; architecture, simulation, source analysis, infrastructure-as-code, and synthetic testing remain unblocked.
+- Physical P100 accelerators, PCIe topologies, and 100GbE / EDR fabric hardware are not yet provisioned; hardware-dependent parameters remain explicitly `UNVERIFIED` until hardware arrival gates fire.
+- CI exists as code (`.github/workflows/hedgehog-evidence.yml`) but has not produced a passing or deliberately failing Actions run on the current branch head.
+- The dependency graph remains a local draft. Creating or updating GitHub issues remains an external mutation requiring human authorization.
 
 ## Artifact boundary
 
-Do not publish actual secrets, credentials, customer data, private legal records, model weights, or live production payloads containing private data. Hedgehog's design is not sensitive by default, and the public repository is not a blocker. The untracked repository-root `agy-profile/` contains Antigravity/Gemini CLI profile/configuration material and is excluded from the safe handoff unless separately reviewed.
+Do not publish actual secrets, credentials, customer data, private legal records, model weights, or live production payloads containing private data. Hedgehog's design is not sensitive by default, and the public repository is not a blocker. Untracked configuration or profile directories are excluded from safe handoffs unless reviewed.
 
 ## Next task
 
-Use Codex to diagnose and repair the AGY instructions/harness until the scheduled runner actually invokes `agy.exe` and one real Antigravity cycle produces reproducible evidence. Then return substantive engineering work to Antigravity and proceed to ADR-0001; Codex remains the instruction/orchestration debugger and hard-case reviewer rather than the repeated heavy-work engine.
+Build the topology fixture parser for NUMA, PCIe, GPUs, NICs, and memory channels (`hh-p1-topology-fixture-parser`), followed by the activation-routing transport benchmark (`hh-p1-activation-transport-benchmark`).
