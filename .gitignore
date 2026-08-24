@@ -13,5 +13,8 @@ __pycache__/
 # Local Hedgehog handoff transport; copied artifacts are uploaded separately.
 WOLVERINE_OUTBOX/
 
-# Local Codex scheduled-run cache; reproducible artifacts belong in evidence/.
+# Local scheduled-run cache; reproducible artifacts belong in evidence/.
 hedgehog/.agent_cache/
+
+# Local Antigravity profile/auth state. Never commit or hand off this directory.
+agy-profile/
