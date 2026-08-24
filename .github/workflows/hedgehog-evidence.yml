@@ -25,6 +25,27 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Parse Hedgehog PowerShell orchestration
+        shell: pwsh
+        run: |
+          $files = @(
+            "hedgehog/scripts/run_agy_loop.ps1",
+            "hedgehog/scripts/install_agy_task.ps1",
+            "hedgehog/scripts/bootstrap_runner_python.ps1"
+          )
+          foreach ($file in $files) {
+            $tokens = $null
+            $errors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile(
+              $file,
+              [ref]$tokens,
+              [ref]$errors
+            )
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object { Write-Error "$file: $($_.Message)" }
+              exit 1
+            }
+          }
       - name: Verify evidence manifests and queue claims
         run: python hedgehog/scripts/verify_evidence.py
       - name: Run Hedgehog verifier unit tests
