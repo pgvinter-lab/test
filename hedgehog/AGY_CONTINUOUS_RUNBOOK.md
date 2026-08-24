@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Run the 60-day Hedgehog engineering program as a persistent, evidence-driven Antigravity agent loop. The agent must reuse one sandbox/environment so research notes, source trees, test fixtures, build artifacts, and status survive between scheduled executions.
+Run the 60-day Hedgehog engineering program as a persistent, evidence-driven Google Antigravity loop. Antigravity is the scheduled heavy-work engine. Codex is reserved for out-of-band diagnosis and repair of prompts, instructions, harnesses, and orchestration defects that prevent Antigravity from doing that work.
 
 ## Source of truth
 
@@ -13,27 +13,61 @@ Run the 60-day Hedgehog engineering program as a persistent, evidence-driven Ant
 - Status: `hedgehog/STATUS.md`
 - Evidence: `hedgehog/evidence/`
 - Outreach drafts: `hedgehog/outreach/drafts/`
+- Scheduled runner: `hedgehog/scripts/run_agy_loop.ps1`
 
 The existing repository is public, and that is not a blocker. Hedgehog architecture, topology, system design, implementation details, ADRs, threat models, synthetic fixtures, benchmark methods and results, and reproducibility evidence may be committed there. The same material may also be archived under `SK-O/Hedgehog/System` in Google Drive. Never commit actual secrets, credentials, customer data, private legal records, model weights, or live production payloads containing private data. Move real customer or private production data to appropriately restricted storage before it enters the project.
 
+## Execution-engine contract
+
+The scheduled runner must resolve and execute `agy.exe` directly. There is no automatic fallback to Codex or another coding agent.
+
+The runner uses Antigravity headless print mode with JSON output so it can verify the terminal status, response, token usage, and `conversation_id`. The first successful engineering cycle records the Antigravity conversation ID under the local runtime directory; subsequent cycles resume that conversation with `--conversation` so context persists across scheduled executions.
+
+The runner rejects:
+
+- a missing or unexpected Antigravity executable;
+- a non-zero Antigravity exit code;
+- a non-`SUCCESS` terminal envelope;
+- empty stdout or a non-JSON result;
+- a `SUCCESS` result with zero token usage or an empty response;
+- substantive changes outside `hedgehog/`;
+- prose-only progress without substantive artifacts;
+- a cycle that does not create or update machine-readable evidence.
+
+After three consecutive scheduled failures, later scheduled attempts stop before invoking Antigravity. A successful `-SmokeTest` clears the failure counter after the prompt/harness/authentication defect has been repaired.
+
+## Codex repair loop
+
+Codex does not perform the recurring Hedgehog engineering cycle. Its role is to improve leverage when Antigravity fails:
+
+1. Preserve the Antigravity failure, logs, exit state, and reproducible conditions.
+2. Use Codex out of band to diagnose the instruction, prompt, harness, tool, or orchestration defect.
+3. Repair that mechanism and add a regression test whenever practical.
+4. Run the Antigravity smoke test.
+5. Return the substantive task to Antigravity.
+
+A failed Antigravity run is therefore a debugging input for Codex, not permission to replace Antigravity with Codex for the workload.
+
 ## Trigger configuration
 
-Create one scheduled Gemini/Antigravity trigger bound to one persistent environment ID.
+Use the Windows scheduled task `Hedgehog AGY Continuous` for the local loop.
 
 - Schedule: hourly
 - Time zone: `America/New_York`
-- Environment: reuse the same environment ID on every run
-- Maximum consecutive failures: 3
-- Execution timeout: use the maximum available practical timeout
-- Notifications: emit completion and failure events when supported
+- Persistent context: reuse the recorded Antigravity `conversation_id`
+- Maximum consecutive failures that may invoke Antigravity: 3
+- Execution timeout: 55 minutes for the task; 45 minutes for one Antigravity headless turn
+- Notifications: daily handoff plus explicit failure/blocker reporting
 
-The trigger should execute the prompt in `hedgehog/AGY_TRIGGER_PROMPT.md`.
+The runner constructs each task from `hedgehog/AGY_TRIGGER_PROMPT.md` and an explicit task ID.
+
+`install_agy_task.ps1` validates the local CLI before registering the task. It keeps the task disabled by default; `-EnableAfterSmokeTest` performs a real Antigravity smoke test before enabling the hourly schedule.
 
 ## One-run operating cycle
 
-Every scheduled execution must:
+Every scheduled engineering execution must:
 
-1. Pull the latest `hedgehog/agy-continuous` branch.
+1. Pull or fast-forward the latest `hedgehog/agy-continuous` branch when the worktree is clean; otherwise enter explicit recovery mode.
 2. Read the doctrine, queue, status, open issues, latest commits, CI results, and prior evidence.
 3. Select the highest-priority unblocked task that can be advanced in the current environment.
 4. Prefer extending prior work over starting a new branch of investigation.
@@ -42,9 +76,10 @@ Every scheduled execution must:
 7. Store raw evidence, commands, logs, benchmark data, and exact versions.
 8. Update `STATUS.md` with what changed, evidence, blockers, and next task.
 9. Update `QUEUE.md` only when evidence changes priority or dependency order.
-10. Commit and push all verified work to the working branch.
-11. Open or update a narrowly scoped GitHub issue when external input is required.
-12. Stop cleanly before timeout, leaving the sandbox and repository resumable.
+10. Return control without committing or pushing.
+11. Let the runner execute the evidence verifier and full Hedgehog unit suite.
+12. Let the runner commit and push verified `hedgehog/` changes and populate the Wolverine handoff outbox.
+13. Stop cleanly before timeout, leaving the environment resumable.
 
 ## Evidence gate
 
