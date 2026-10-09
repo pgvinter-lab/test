@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EXCUSE-O-TRON 3000</title>
+<style>
+  :root {
+    --bg: #12081f;
+    --card: #1f1033;
+    --card2: #2b1647;
+    --ink: #f4eaff;
+    --dim: #a893c9;
+    --lime: #b6ff3b;
+    --pink: #ff4fa3;
+    --cyan: #3be8ff;
+    --warn: #ffd23b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: radial-gradient(circle at 20% 0%, #2a0f4d 0%, var(--bg) 55%) fixed;
+    color: var(--ink);
+    font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+    padding: 16px;
+    overflow-x: hidden;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 {
+    font-size: clamp(28px, 7vw, 46px);
+    margin: 8px 0 0;
+    text-align: center;
+    letter-spacing: 1px;
+    color: var(--lime);
+    text-shadow: 3px 3px 0 var(--pink);
+    cursor: pointer;
+    user-select: none;
+  }
+  .sub { text-align: center; color: var(--dim); margin: 6px 0 18px; font-size: 15px; }
+  .sub b { color: var(--cyan); }
+  .card {
+    background: var(--card);
+    border: 2px solid var(--card2);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 6px 0 #0b0414;
+  }
+  .label { font-size: 13px; text-transform: uppercase; letter-spacing: 2px; color: var(--dim); margin-bottom: 10px; }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill {
+    background: var(--card2);
+    color: var(--ink);
+    border: 2px solid transparent;
+    border-radius: 999px;
+    padding: 9px 14px;
+    font-size: 15px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .pill:hover { border-color: var(--cyan); }
+  .pill.on { background: var(--lime); color: #12081f; font-weight: bold; }
+  button.big {
+    width: 100%;
+    margin-top: 14px;
+    padding: 16px;
+    font-size: 22px;
+    font-weight: bold;
+    font-family: inherit;
+    border: 0;
+    border-radius: 14px;
+    background: var(--pink);
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #a3235f;
+    transition: transform .05s, box-shadow .05s;
+  }
+  button.big:active { transform: translateY(5px); box-shadow: 0 1px 0 #a3235f; }
+  #out {
+    min-height: 130px;
+    font-size: 19px;
+    line-height: 1.5;
+    padding: 14px;
+    background: #150a26;
+    border-radius: 12px;
+    border-left: 6px solid var(--lime);
+    white-space: pre-wrap;
+  }
+  #out.empty { color: var(--dim); font-style: italic; }
+  .cursor::after { content: "\2588"; color: var(--lime); animation: blink .6s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .small {
+    flex: 1 1 140px;
+    padding: 11px;
+    font-size: 15px;
+    font-family: inherit;
+    border-radius: 10px;
+    border: 2px solid var(--card2);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .small:hover:not(:disabled) { border-color: var(--lime); }
+  .small:disabled { opacity: .35; cursor: not-allowed; }
+  .meter { margin-top: 14px; }
+  .meter .top { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px; }
+  .bar { height: 16px; background: #150a26; border-radius: 99px; overflow: hidden; }
+  .fill { height: 100%; width: 0; transition: width .7s cubic-bezier(.2,1.4,.4,1); border-radius: 99px; }
+  #bFill { background: linear-gradient(90deg, var(--pink), var(--warn), var(--lime)); }
+  #gFill { background: linear-gradient(90deg, var(--cyan), var(--pink)); }
+  .verdict { font-size: 14px; color: var(--warn); margin-top: 4px; min-height: 20px; }
+  .shame { list-style: none; margin: 0; padding: 0; }
+  .shame li {
+    background: #150a26;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-size: 14px;
+    line-height: 1.4;
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+  }
+  .shame button { background: none; border: 0; color: var(--pink); cursor: pointer; font-size: 16px; }
+  .none { color: var(--dim); font-size: 14px; font-style: italic; }
+  .counter { text-align: center; color: var(--dim); font-size: 14px; }
+  .counter b { color: var(--lime); }
+  footer { text-align: center; color: var(--dim); font-size: 12px; margin: 22px 0 10px; }
+  .rain { position: fixed; top: -40px; font-size: 28px; pointer-events: none; animation: fall linear forwards; z-index: 50; }
+  @keyframes fall { to { transform: translateY(115vh) rotate(360deg); } }
+  .shake { animation: shake .45s; }
+  @keyframes shake {
+    10%, 90% { transform: translateX(-3px); }
+    20%, 80% { transform: translateX(6px); }
+    30%, 50%, 70% { transform: translateX(-9px); }
+    40%, 60% { transform: translateX(9px); }
+  }
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
+    background: var(--lime); color: #12081f; font-weight: bold;
+    padding: 10px 18px; border-radius: 99px; z-index: 60; font-size: 14px;
+    max-width: 90vw; text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <h1 id="title">EXCUSE-O-TRON 3000</h1>
+  <p class="sub">Certified excuses. Legally not lies.<sup>*</sup> <b>Believability not guaranteed.</b></p>
+
+  <div class="card">
+    <div class="label">1. What did you do?</div>
+    <div class="pills" id="pills"></div>
+    <button class="big" id="go">GENERATE EXCUSE &#128168;</button>
+  </div>
+
+  <div class="card">
+    <div class="label">2. Your defense</div>
+    <div id="out" class="empty" aria-live="polite">Pick your crime, then smash the big pink button. Your lawyer (a goldfish) is standing by.</div>
+
+    <div class="meter">
+      <div class="top"><span>&#128519; Believability</span><span id="bNum">--</span></div>
+      <div class="bar"><div class="fill" id="bFill"></div></div>
+      <div class="verdict" id="bVerdict"></div>
+    </div>
+    <div class="meter">
+      <div class="top"><span>&#128561; Grounding Probability</span><span id="gNum">--</span></div>
+      <div class="bar"><div class="fill" id="gFill"></div></div>
+    </div>
+
+    <div class="row">
+      <button class="small" id="worse" disabled>&#128520; Make it worse</button>
+      <button class="small" id="copy" disabled>&#128203; Copy</button>
+      <button class="small" id="save" disabled>&#127942; Hall of Shame</button>
+      <button class="small" id="snd">&#128266; Sound: ON</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="label">&#127942; Hall of Shame</div>
+    <ul class="shame" id="shame"></ul>
+    <div class="none" id="none">Nothing saved yet. Your reputation is still intact. For now.</div>
+    <div class="row"><button class="small" id="clear">Clear the evidence</button></div>
+  </div>
+
+  <div class="counter">Excuses generated this session: <b id="count">0</b> <span id="milestone"></span></div>
+  <footer>
+    *Gerald is not a real person. Excuses are for fun. For actual emergencies, tell an actual adult the actual truth.<br>
+    Psst... click the title 5 times.
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- the goods ----------
+  var CRIMES = {
+    homework: {
+      label: "Didn't do homework", emoji: "📚",
+      openers: [
+        "Teacher, I need you to sit down.",
+        "I did do the homework. Spiritually.",
+        "Okay, this sounds fake, but it is 100% real.",
+        "Before you say anything, I'd like to remind you that I'm a good kid."
+      ],
+      events: [
+        "my little brother traded it to a raccoon for half a burrito.",
+        "my dog ate it and honestly looked proud of himself.",
+        "my printer started making sounds like a dying whale and then gave up on life.",
+        "I wrote it on my hand, but then I washed my hands like a responsible citizen.",
+        "my cat sat on the laptop and submitted a 4,000-word essay about tuna.",
+        "it got stuck to my gym socks and the situation became a biohazard.",
+        "I did it in invisible ink as a creative choice.",
+        "it got abducted by the Wi-Fi, and the Wi-Fi isn't talking."
+      ]
+    },
+    late: {
+      label: "Late to class", emoji: "⏰",
+      openers: [
+        "I can explain.",
+        "You're not going to believe this, but I barely believe it either.",
+        "Please hold your applause, I have arrived.",
+        "I'm late because of reasons beyond my control or my skill."
+      ],
+      events: [
+        "a goose blocked the hallway and honestly I respect his territory.",
+        "I got into a staring contest with a vending machine and it did not blink.",
+        "my shoelaces tied themselves together as a power move.",
+        "I was in the bathroom having a long and emotional conversation with my stomach.",
+        "I went to room 214 and room 214 moved.",
+        "a substitute tried to take attendance on me in the hallway and I had to be polite.",
+        "the stairs had a plot twist.",
+        "my alarm went off, but my alarm is also a liar."
+      ]
+    },
+    room: {
+      label: "Didn't clean room", emoji: "🦦",
+      openers: [
+        "Mom, Dad, let me present my case.",
+        "My room is not messy. It's an art installation.",
+        "I would have cleaned it, but something came up.",
+        "Everything in there is exactly where it should be, according to me."
+      ],
+      events: [
+        "I found a sandwich from last month and we had to have a funeral.",
+        "there's a sock under the bed that has legal rights now.",
+        "the pile of clothes developed its own gravity and I am afraid of it.",
+        "it's an organized system only I understand, like a detective's crime board.",
+        "that room is a protected habitat and I can't disturb the wildlife.",
+        "I started cleaning, but then I found my old Lego and lost three hours of my life.",
+        "I'm waiting for the laundry to finish evolving.",
+        "something in the corner looked at me and I decided to respect its space."
+      ]
+    },
+    text: {
+      label: "Left them on read", emoji: "📱",
+      openers: [
+        "I saw your message. I want to be transparent about that.",
+        "Okay, listen. I was not ignoring you. I was ignoring everyone.",
+        "Please don't be mad, I have a very good reason.",
+        "Hi. I'm back from the dead."
+      ],
+      events: [
+        "my phone fell in the toilet. Not literally, but emotionally.",
+        "I was typing the perfect reply and it took six days. I'm a perfectionist.",
+        "my battery was at 1% and I was saving it for a real emergency.",
+        "autocorrect changed my message to something so cursed that I had to leave the country.",
+        "my thumbs went on strike and their demands are unclear.",
+        "I replied in my head. Check your telepathy.",
+        "I dropped my phone on my face while lying down and passed out for a bit.",
+        "my brain went on vacation and forgot to tell me."
+      ]
+    },
+    noise: {
+      label: "That noise in class", emoji: "💨",
+      openers: [
+        "I know what you're thinking, and no.",
+        "That was not me, and I'm offended you looked at me.",
+        "Let me be crystal clear about what just happened.",
+        "I have never heard that sound before in my life."
+      ],
+      events: [
+        "that was the chair. Chairs make noises, ask any chair.",
+        "that was my stomach, and he has strong opinions about the school pizza.",
+        "there's a trapped duck in my backpack and he is not happy.",
+        "it was a ghost. Ghosts are very rude.",
+        "my sneaker did that, and that sneaker has a history.",
+        "it was a sound-based art project and you just ruined the premiere.",
+        "a seagull outside did that. He's bold and he has no manners.",
+        "it was the zipper on my hoodie, which is also not great."
+      ]
+    },
+    veggies: {
+      label: "Didn't eat veggies", emoji: "🥦",
+      openers: [
+        "I'd like to start with the fact that I tried.",
+        "This is not about me. This is about the broccoli.",
+        "I want to say, in my defense, that I am a growing person.",
+        "Dinner was a complicated situation."
+      ],
+      events: [
+        "I'm allergic to the color green. A doctor said it, probably.",
+        "those peas have been plotting against me since 2019.",
+        "my taste buds filed a restraining order against the carrots.",
+        "the broccoli looked at me weird and I'm not going to be disrespected at my own table.",
+        "I'm saving them for later, in a place called the dog.",
+        "my stomach is full of invisible dessert and I can't disturb the peace.",
+        "the spinach made a face at me and I made one back. We're even now.",
+        "I was going to eat them, but then I saw the corn and honestly it was a lot."
+      ]
+    }
+  };
+
+  var AFTERMATH = [
+    "I have no proof, which if you think about it makes it even more believable.",
+    "Three witnesses saw it and then moved to another country.",
+    "My lawyer says I shouldn't say more, and my lawyer is also my goldfish.",
+    "It's been a rough day and my emotional support Hot Pocket is also upset.",
+    "A man in a trench coat told me to keep quiet, but I'm a truth teller.",
+    "I've already apologized to the universe, and the universe left me on read.",
+    "I'm still processing it, and honestly so is my stomach."
+  ];
+
+  var CLOSERS = [
+    "Please don't call my mom. She'll bring it up at Thanksgiving.",
+    "I'll fix it tomorrow, scout's honor. (I was never a scout.)",
+    "I'll accept partial credit and a handshake.",
+    "Can we all agree to move on like mature individuals?",
+    "I'm the victim here. I want that on the record.",
+    "Anyway, I'm going to go stare out a window dramatically now."
+  ];
+
+  var WORSE = [
+    "Also, there was a clown. I don't want to talk about the clown.",
+    "Then my uncle showed up out of nowhere with a goat. Don't ask.",
+    "At that point a pigeon made direct eye contact and I knew I was in too deep.",
+    "Somehow it's also the dog's fault. It's always the dog.",
+    "The ceiling fan was involved. It's always the ceiling fan.",
+    "Suddenly it started raining indoors. Only on me.",
+    "Then a man named Gerald appeared. Nobody knows Gerald.",
+    "My shadow left halfway through and has not returned my calls.",
+    "I'd also like to blame Mercury. It was in retrograde, or in a hoodie, I forgot.",
+    "A mysterious smell showed up around then, and it was not me. It was never me.",
+    "The WiFi icon turned into a skull. I don't make the rules."
+  ];
+
+  var B_VERDICTS = [
+    [20, "Your teacher is already typing the email to your parents."],
+    [40, "Sus. Very sus. Sus with extra sus."],
+    [60, "Mid. A solid C-minus of lying."],
+    [80, "Honestly kinda legit. Who raised you?"],
+    [101, "Lawyer-grade. This is dangerous. Use responsibly."]
+  ];
+
+  var MILESTONES = [
+    [5, "😏 Warming up."],
+    [10, "😬 Okay, you're getting good at this."],
+    [20, "🔥 Professional excuse-maker detected."],
+    [40, "👑 You should run for office."],
+    [75, "👽 Gerald is proud of you."]
+  ];
+
+  // ---------- helpers ----------
+  function $(id) { return document.getElementById(id); }
+
+  // shuffle bag: no repeats until everything has been used
+  function bag(arr) {
+    var left = [];
+    return function () {
+      if (!left.length) {
+        left = arr.slice();
+        for (var i = left.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var t = left[i]; left[i] = left[j]; left[j] = t;
+        }
+      }
+      return left.pop();
+    };
+  }
+  function rnd(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+  function clamp(n) { return Math.max(0, Math.min(100, n)); }
+
+  var bags = { after: bag(AFTERMATH), close: bag(CLOSERS), worse: bag(WORSE) };
+  Object.keys(CRIMES).forEach(function (k) {
+    bags[k + "_o"] = bag(CRIMES[k].openers);
+    bags[k + "_e"] = bag(CRIMES[k].events);
+  });
+
+  // ---------- state ----------
+  var crime = "homework";
+  var excuse = "";
+  var believe = 0;
+  var made = 0;
+  var typeTimer = null;
+  var soundOn = true;
+  var shame = [];
+  var titleClicks = 0;
+
+  // ---------- sound (no files needed, just math) ----------
+  var ctx = null;
+  function squelch(len) {
+    if (!soundOn) return;
+    try {
+      ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+      if (ctx.state === "suspended") ctx.resume();
+      var t = ctx.currentTime;
+      var osc = ctx.createOscillator();
+      var lfo = ctx.createOscillator();
+      var lfoGain = ctx.createGain();
+      var amp = ctx.createGain();
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(rnd(110, 170), t);
+      osc.frequency.exponentialRampToValueAtTime(rnd(38, 55), t + len);
+      lfo.frequency.value = rnd(22, 34);
+      lfoGain.gain.value = 0.5;
+      amp.gain.setValueAtTime(0.0001, t);
+      amp.gain.exponentialRampToValueAtTime(0.35, t + 0.03);
+      amp.gain.exponentialRampToValueAtTime(0.0001, t + len);
+      lfo.connect(lfoGain);
+      lfoGain.connect(amp.gain);
+      osc.connect(amp);
+      amp.connect(ctx.destination);
+      osc.start(t); lfo.start(t);
+      osc.stop(t + len + 0.05); lfo.stop(t + len + 0.05);
+    } catch (e) { /* sound is optional, the jokes are not */ }
+  }
+
+  // ---------- UI ----------
+  function toast(msg) {
+    var d = document.createElement("div");
+    d.className = "toast";
+    d.textContent = msg;
+    document.body.appendChild(d);
+    setTimeout(function () { d.remove(); }, 1800);
+  }
+
+  function rain(emoji, n) {
+    for (var i = 0; i < n; i++) {
+      var s = document.createElement("span");
+      s.className = "rain";
+      s.textContent = emoji[rnd(0, emoji.length - 1)];
+      s.style.left = rnd(0, 95) + "vw";
+      s.style.animationDuration = (rnd(18, 40) / 10) + "s";
+      s.style.animationDelay = (rnd(0, 12) / 10) + "s";
+      document.body.appendChild(s);
+      (function (el) { setTimeout(function () { el.remove(); }, 5500); })(s);
+    }
+  }
+
+  function typeOut(fullText, fromIndex) {
+    var out = $("out");
+    out.classList.remove("empty");
+    clearInterval(typeTimer);
+    var i = fromIndex || 0;
+    out.classList.add("cursor");
+    typeTimer = setInterval(function () {
+      i += 2;
+      out.textContent = fullText.slice(0, i);
+      if (i >= fullText.length) {
+        out.textContent = fullText;
+        out.classList.remove("cursor");
+        clearInterval(typeTimer);
+      }
+    }, 16);
+  }
+
+  function setMeters() {
+    $("bFill").style.width = believe + "%";
+    $("bNum").textContent = believe + "%";
+    var ground = clamp(100 - believe + rnd(-8, 8));
+    $("gFill").style.width = ground + "%";
+    $("gNum").textContent = ground + "%";
+    for (var i = 0; i < B_VERDICTS.length; i++) {
+      if (believe < B_VERDICTS[i][0]) { $("bVerdict").textContent = B_VERDICTS[i][1]; break; }
+    }
+  }
+
+  function updateCount() {
+    $("count").textContent = made;
+    var m = "";
+    MILESTONES.forEach(function (x) { if (made >= x[0]) m = x[1]; });
+    $("milestone").textContent = m;
+  }
+
+  function enableButtons() {
+    ["worse", "copy", "save"].forEach(function (id) { $(id).disabled = false; });
+  }
+
+  function generate() {
+    var c = CRIMES[crime];
+    var parts = [
+      bags[crime + "_o"](),
+      "So basically, " + bags[crime + "_e"](),
+      bags["after"](),
+      bags["close"]()
+    ];
+    excuse = parts.join(" ");
+    believe = rnd(8, 72);
+    made++;
+    typeOut(excuse, 0);
+    setMeters();
+    updateCount();
+    enableButtons();
+    squelch(0.5);
+  }
+
+  function makeWorse() {
+    var add = bags["worse"]();
+    var old = excuse;
+    excuse = excuse + " " + add;
+    believe = clamp(believe - rnd(9, 18));
+    typeOut(excuse, old.length);
+    setMeters();
+    squelch(0.9);
+    var app = $("app");
+    app.classList.remove("shake");
+    void app.offsetWidth;
+    app.classList.add("shake");
+    if (believe === 0) { rain(["🤡", "💨"], 14); toast("Believability: ZERO. Respect."); }
+  }
+
+  function copyText() {
+    function done() { toast("Copied. Go forth and lie. (Kidding. Mostly.)"); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(excuse).then(done, fallback);
+    } else { fallback(); }
+    function fallback() {
+      var ta = document.createElement("textarea");
+      ta.value = excuse;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); done(); } catch (e) { toast("Couldn't copy. Select the text yourself."); }
+      ta.remove();
+    }
+  }
+
+  // ---------- hall of shame ----------
+  function persist() {
+    try { localStorage.setItem("excuseotron_shame", JSON.stringify(shame)); } catch (e) {}
+  }
+  function loadShame() {
+    try { shame = JSON.parse(localStorage.getItem("excuseotron_shame") || "[]") || []; } catch (e) { shame = []; }
+  }
+  function renderShame() {
+    var ul = $("shame");
+    ul.innerHTML = "";
+    shame.forEach(function (s, i) {
+      var li = document.createElement("li");
+      var span = document.createElement("span");
+      span.textContent = s.emoji + " " + s.text;
+      var x = document.createElement("button");
+      x.textContent = "✖";
+      x.title = "Delete";
+      x.addEventListener("click", function () { shame.splice(i, 1); persist(); renderShame(); });
+      li.appendChild(span);
+      li.appendChild(x);
+      ul.appendChild(li);
+    });
+    $("none").style.display = shame.length ? "none" : "block";
+  }
+  function saveShame() {
+    shame.unshift({ emoji: CRIMES[crime].emoji, text: excuse });
+    shame = shame.slice(0, 20);
+    persist();
+    renderShame();
+    toast("Saved to the Hall of Shame 🏆");
+  }
+
+  // ---------- wire it up ----------
+  function buildPills() {
+    var box = $("pills");
+    Object.keys(CRIMES).forEach(function (k) {
+      var b = document.createElement("button");
+      b.className = "pill" + (k === crime ? " on" : "");
+      b.textContent = CRIMES[k].emoji + " " + CRIMES[k].label;
+      b.addEventListener("click", function () {
+        crime = k;
+        Array.prototype.forEach.call(box.children, function (el) { el.classList.remove("on"); });
+        b.classList.add("on");
+        generate();
+      });
+      box.appendChild(b);
+    });
+  }
+
+  $("go").addEventListener("click", generate);
+  $("worse").addEventListener("click", makeWorse);
+  $("copy").addEventListener("click", copyText);
+  $("save").addEventListener("click", saveShame);
+  $("clear").addEventListener("click", function () { shame = []; persist(); renderShame(); toast("Evidence destroyed."); });
+  $("snd").addEventListener("click", function () {
+    soundOn = !soundOn;
+    $("snd").innerHTML = soundOn ? "🔊 Sound: ON" : "🔇 Sound: OFF";
+    if (soundOn) squelch(0.4);
+  });
+  $("title").addEventListener("click", function () {
+    titleClicks++;
+    if (titleClicks >= 5) {
+      titleClicks = 0;
+      rain(["💨", "🦢", "🤡", "🌮", "🧦"], 40);
+      squelch(1.4);
+      toast("SECRET UNLOCKED: Gerald says hi.");
+    }
+  });
+
+  loadShame();
+  buildPills();
+  renderShame();
+})();
+</script>
+</body>
+</html>
